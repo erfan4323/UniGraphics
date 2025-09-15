@@ -39,3 +39,27 @@
 
 # debug information files
 *.dwo
+
+
+# Xmake cache
+.xmake/
+build/
+
+# MacOS Cache
+.DS_Store
+
+compile_commands.json
+
+# Clangd
+.cache/
+.clang-format
+.clangd
+
+.vscode/
+
+# nob
+nob.exe
+nob.exe.old
+_build/
+src/Core/pch.h.gch
+src/ECS/pch.h.gch
