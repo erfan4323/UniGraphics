@@ -1,8 +1,12 @@
 #include "GraphicsBackend.h"
 
-GraphicsBackend::GraphicsBackend() = default;
+namespace ugfx {
 
-GraphicsBackend::~GraphicsBackend() {
-    if (m_Window)
-        m_Window->Shutdown();
-}
+    GraphicsBackend::GraphicsBackend() = default;
+
+    GraphicsBackend::~GraphicsBackend() {
+        if (m_Window)
+            m_Window->Shutdown();
+    }
+
+}  // namespace ugfx

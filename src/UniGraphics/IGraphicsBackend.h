@@ -7,13 +7,17 @@
 #include "IRenderer.h"
 #include "IWindow.h"
 
-class IGraphicsBackend {
-   public:
-    virtual ~IGraphicsBackend() = default;
+namespace ugfx {
 
-    virtual IWindow*   GetWindow()   = 0;
-    virtual IInput*    GetInput()    = 0;
-    virtual IRenderer* GetRenderer() = 0;
-};
+    class IGraphicsBackend {
+       public:
+        virtual ~IGraphicsBackend() = default;
 
-std::unique_ptr<IGraphicsBackend> CreateBackend(BackendType type);
+        virtual IWindow*   GetWindow()   = 0;
+        virtual IInput*    GetInput()    = 0;
+        virtual IRenderer* GetRenderer() = 0;
+    };
+
+    std::unique_ptr<IGraphicsBackend> CreateBackend(BackendType type);
+
+}  // namespace ugfx

@@ -51,6 +51,24 @@ static bool compile_sources(StrVec *sources, const char **includes,
     return procs_flush(&procs);
 }
 
+bool build_UniGraphics() {
+    StrVec core_src = {0};
+    collect_files_by_pattern(SRC_DIR "UniGraphics/**/*.cpp", &core_src);
+
+    const char *core_includes[] = {
+        SRC_DIR "UniGraphics",
+        RAYLIB_PATH "include",
+    };
+
+    if (!compile_sources(&core_src, core_includes, ARRAY_SIZE(core_includes), OBJ_DIR "UniGraphics"))
+        return false;
+
+    if (!archive_to_lib(OBJ_DIR "UniGraphics/", BUILD_DIR "libUniGraphics.a"))
+        return false;
+
+    return true;
+}
+
 bool build_imgui(void) {
     StrVec imgui_src = {0};
     collect_files_by_pattern(IMGUI_PATH "*.cpp", &imgui_src);
@@ -73,15 +91,15 @@ bool build_main() {
     const char *core_includes[] = {IMGUI_PATH, IMGUI_PATH "backends/",
                                    RAYLIB_PATH "include"};
 
-    const char *core_libs[] = {"-L" BUILD_DIR, "-L" RAYLIB_PATH "lib",
-                               "-limgui",      "-lraylib",
-                               "-lgdi32",      "-lopengl32",
-                               "-lshell32",    "-luser32",
-                               "-lkernel32",   "-lSDL2main",
-                               "-lSDL2",       "-lSDL2_ttf",
-                               "-lSDL2_image", "-lwinmm",
-                               "-lmingw32",    "-lDbghelp",
-                               "-lpthread"};
+    const char *core_libs[] = {"-L" BUILD_DIR,  "-L" RAYLIB_PATH "lib",
+                               "-lUniGraphics", "-limgui",
+                               "-lraylib",      "-lgdi32",
+                               "-lopengl32",    "-lshell32",
+                               "-luser32",      "-lkernel32",
+                               "-lSDL2main",    "-lSDL2",
+                               "-lSDL2_ttf",    "-lSDL2_image",
+                               "-lwinmm",       "-lmingw32",
+                               "-lDbghelp",     "-lpthread"};
 
     def_cmd();
     cmd_append(&cmd, SRC_DIR "main.cpp");
@@ -114,6 +132,9 @@ int main(int argc, char **argv) {
     if (needs_rebuild1(BUILD_DIR "libimgui.a", IMGUI_PATH "imgui.h")) {
         if (!build_imgui()) return 1;
     }
+
+    if (!build_UniGraphics())
+        return 1;
 
     if (!build_main()) return 1;
 
