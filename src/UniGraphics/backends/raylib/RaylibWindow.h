@@ -17,6 +17,8 @@ namespace ugfx::raylib {
         bool                ShouldClose() const override;
         void                PollEvents() override;
         void                Shutdown() override;
+        void                SetTargetFPS(int fps) override;
+        float               GetDeltaTime() const override;
     };
 
 }  // namespace ugfx::raylib

@@ -26,9 +26,10 @@ int main() {
     Color     bgColor   = {0, 0, 0, 255};                  // Black background
 
     // Main loop
-    float deltaTime = 1.0f / 60.0f;  // Assume 60 FPS for simplicity
+    window->SetTargetFPS(60);
     while (!window->ShouldClose()) {
         window->PollEvents();
+        float deltaTime = window->GetDeltaTime();
 
         // Handle input
         Vector2 velocity = {0.0f, 0.0f};

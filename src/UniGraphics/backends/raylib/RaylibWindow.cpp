@@ -39,4 +39,12 @@ namespace ugfx::raylib {
         }
     }
 
+    void RaylibWindow::SetTargetFPS(int fps) {
+        ::SetTargetFPS(fps);
+    }
+
+    float RaylibWindow::GetDeltaTime() const {
+        return GetFrameTime();
+    }
+
 }  // namespace ugfx::raylib
