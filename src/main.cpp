@@ -21,27 +21,28 @@ int main() {
 
     // Rectangle properties
     Rectangle rect      = {100.0f, 100.0f, 50.0f, 50.0f};  // x, y, width, height
-    float     speed     = 100.0f;                          // Pixels per second
+    float     speed     = 250.0f;                          // Pixels per second
     Color     rectColor = {255, 0, 0, 255};                // Red
-    Color     bgColor   = {0, 0, 0, 255};                  // Black background
+    Color     bgColor   = {245, 245, 245, 255};            // Black background
+
+    window->SetTargetFPS(60);
 
     // Main loop
-    window->SetTargetFPS(60);
     while (!window->ShouldClose()) {
         window->PollEvents();
         float deltaTime = window->GetDeltaTime();
 
         // Handle input
         Vector2 velocity = {0.0f, 0.0f};
-        if (input->IsKeyDown(Key::RIGHT))
+        if (input->IsKeyDown(Key::right))
             velocity.x += speed;
-        if (input->IsKeyDown(Key::LEFT))
+        if (input->IsKeyDown(Key::left))
             velocity.x -= speed;
-        if (input->IsKeyDown(Key::UP))
+        if (input->IsKeyDown(Key::up))
             velocity.y -= speed;
-        if (input->IsKeyDown(Key::DOWN))
+        if (input->IsKeyDown(Key::down))
             velocity.y += speed;
-        if (input->IsKeyDown(Key::ESCAPE))
+        if (input->IsKeyDown(Key::escape))
             break;
 
         // Update rectangle position
