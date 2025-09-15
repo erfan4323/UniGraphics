@@ -12,6 +12,7 @@
 #define SDL_IMAGE_PATH "Vendor/SDL2_image-2.8.8/x86_64-w64-mingw32/"
 #define SDL_TTF_PATH "Vendor/SDL2_ttf-2.24.0/x86_64-w64-mingw32/"
 #define IMGUI_PATH "Vendor/imgui/"
+#define RAYLIB_PATH "Vendor/raylib-5.5/"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
@@ -69,11 +70,18 @@ bool build_imgui(void) {
 }
 
 bool build_main() {
-    const char *core_includes[] = {IMGUI_PATH, IMGUI_PATH "backends/"};
+    const char *core_includes[] = {IMGUI_PATH, IMGUI_PATH "backends/",
+                                   RAYLIB_PATH "include"};
 
-    const char *core_libs[] = {
-        "-L" BUILD_DIR, "-limgui", "-lSDL2main", "-lSDL2",    "-lSDL2_ttf",
-        "-lSDL2_image", "-lwinmm", "-lmingw32",  "-lDbghelp", "-lpthread"};
+    const char *core_libs[] = {"-L" BUILD_DIR, "-L" RAYLIB_PATH "lib",
+                               "-limgui",      "-lraylib",
+                               "-lgdi32",      "-lopengl32",
+                               "-lshell32",    "-luser32",
+                               "-lkernel32",   "-lSDL2main",
+                               "-lSDL2",       "-lSDL2_ttf",
+                               "-lSDL2_image", "-lwinmm",
+                               "-lmingw32",    "-lDbghelp",
+                               "-lpthread"};
 
     def_cmd();
     cmd_append(&cmd, SRC_DIR "main.cpp");
