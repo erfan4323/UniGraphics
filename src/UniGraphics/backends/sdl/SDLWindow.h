@@ -1,0 +1,32 @@
+#pragma once
+
+#include <SDL2/SDL.h>
+
+#include "UniGraphics.h"
+
+namespace ugfx::sdl {
+
+    class SDLWindow : public IWindow {
+       public:
+        SDLWindow();
+        ~SDLWindow() override;
+
+        bool                Create(const std::string& title, int width, int height, bool fullscreen) override;
+        void                SetTitle(const std::string& title) override;
+        std::pair<int, int> GetSize() const override;
+        bool                ShouldClose() const override;
+        void                PollEvents() override;
+        void                Shutdown() override;
+        void                SetTargetFPS(int fps) override;
+        float               GetDeltaTime() const override;
+
+        SDL_Window* GetWindow() const { return m_Window; }
+
+       private:
+        SDL_Window* m_Window          = nullptr;
+        bool        m_ShouldClose     = false;
+        Uint32      m_LastFrameTime   = 0;
+        float       m_TargetFrameTime = 0.0f;
+    };
+
+}  // namespace ugfx::sdl

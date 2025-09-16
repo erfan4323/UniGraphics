@@ -88,18 +88,13 @@ bool build_imgui(void) {
 }
 
 bool build_main() {
-    const char *core_includes[] = {IMGUI_PATH, IMGUI_PATH "backends/",
-                                   RAYLIB_PATH "include"};
+    const char *core_includes[] = {IMGUI_PATH, IMGUI_PATH "backends/", SDL_PATH "include", RAYLIB_PATH "include"};
 
-    const char *core_libs[] = {"-L" BUILD_DIR,  "-L" RAYLIB_PATH "lib",
-                               "-lUniGraphics", "-limgui",
-                               "-lraylib",      "-lgdi32",
-                               "-lopengl32",    "-lshell32",
-                               "-luser32",      "-lkernel32",
-                               "-lSDL2main",    "-lSDL2",
-                               "-lSDL2_ttf",    "-lSDL2_image",
-                               "-lwinmm",       "-lmingw32",
-                               "-lDbghelp",     "-lpthread"};
+    const char *core_libs[] = {
+        "-L" BUILD_DIR, "-L" RAYLIB_PATH "lib", "-L" SDL_PATH "lib", "-lUniGraphics", "-limgui",    "-lraylib",
+        "-lgdi32",      "-lopengl32",           "-lshell32",         "-luser32",      "-lkernel32", "-lSDL2main",
+        "-lSDL2",       "-lSDL2_ttf",           "-lSDL2_image",      "-lwinmm",       "-lmingw32",  "-lDbghelp",
+        "-lpthread"};
 
     def_cmd();
     cmd_append(&cmd, SRC_DIR "main.cpp");
