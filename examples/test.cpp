@@ -80,7 +80,7 @@ int main() {
 
     // Window
     const std::string windowTitle = "Renderer Demo";
-    const int         windowWidth = 1200, windowHeight = 700;
+    const int         windowWidth = 1060, windowHeight = 630;
     const bool        fullscreen = false;
 
     // Demo objects
@@ -130,8 +130,6 @@ int main() {
         // --- Switch backend ---
         if (ctx.input->IsKeyPressed(Key::tab)) {
             currentBackendIndex = (currentBackendIndex + 1) % backends.size();
-            std::cout << "------------------------------------------------------------------------------" << "\n";
-            std::cout << "Switching to backend: " << GetBackendName(backends[currentBackendIndex]) << "\n";
 
             // Cleanup
             if (texture.id != -1)
@@ -142,6 +140,9 @@ int main() {
 
             if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen))
                 return -1;
+
+            std::cout << "------------------------------------------------------------------------------" << "\n";
+            std::cout << "Switching to backend: " << GetBackendName(backends[currentBackendIndex]) << "\n";
 
             texture = LoadTextureSafe(ctx.renderer, texturePath);
             font    = LoadFontSafe(ctx.renderer, fontPath, fontSize);
@@ -155,7 +156,7 @@ int main() {
         // Panels
         Rectangle shapesPanel   = {10, 10, 380, 300};
         Rectangle texturesPanel = {10, 320, 380, 300};
-        Rectangle infoPanel     = {400, 10, 790, 680};
+        Rectangle infoPanel     = {400, 10, 650, 610};
 
         // Clamp rectangle to shapesPanel
         rect.x = std::clamp(rect.x, 0.0f, (float) windowWidth);
