@@ -1,16 +1,12 @@
 #include "SDLRenderer.h"
 
 #include <cmath>
+#include <functional>
 #include <iostream>
 
 #define M_PI 3.14159265358979323846  // pi
 
 namespace ugfx::sdl {
-
-    std::unordered_map<unsigned int, SDL_Texture*> SDLRenderer::g_textureMap;
-    unsigned int                                   SDLRenderer::g_nextTextureId = 1;
-    std::unordered_map<unsigned int, TTF_Font*>    SDLRenderer::g_fontMap;
-    unsigned int                                   SDLRenderer::g_nextFontId = 1;
 
     SDLRenderer::SDLRenderer(SDL_Window* window) {
         if (!window) {
@@ -28,7 +24,7 @@ namespace ugfx::sdl {
             std::cout << "Using software renderer as fallback" << std::endl;
         }
         SDL_SetRenderDrawBlendMode(m_Renderer, SDL_BLENDMODE_BLEND);
-        m_DefaultFont = TTF_OpenFont("assets/default.ttf", 16);
+        m_DefaultFont = TTF_OpenFont("defaults/Lexend.ttf", 16);
         if (!m_DefaultFont) {
             std::cerr << "Failed to load default font: " << TTF_GetError() << std::endl;
         }
@@ -59,6 +55,14 @@ namespace ugfx::sdl {
         SDL_RenderClear(m_Renderer);
     }
 
+    void SDLRenderer::ReleaseAllResources() {
+        m_TextureManager.Clear([](SDL_Texture* t) { SDL_DestroyTexture(t); });
+        m_FontManager.Clear([](TTF_Font* f) { TTF_CloseFont(f); });
+        if (m_Renderer)
+            SDL_RenderClear(m_Renderer);
+        std::cout << "SDLRenderer: All textures/fonts released.\n";
+    }
+
     void SDLRenderer::DrawPixel(Vector2 pos, Color color) {
         if (!m_Renderer)
             return;
@@ -69,19 +73,34 @@ namespace ugfx::sdl {
     void SDLRenderer::DrawLine(Vector2 start, Vector2 end, float thickness, Color color) {
         if (!m_Renderer)
             return;
+
         SDL_SetRenderDrawColor(m_Renderer, color.r, color.g, color.b, color.a);
+
         if (thickness <= 1.0f) {
             SDL_RenderDrawLineF(m_Renderer, start.x, start.y, end.x, end.y);
-        } else {
-            float dx     = end.x - start.x;
-            float dy     = end.y - start.y;
-            float length = sqrtf(dx * dx + dy * dy);
-            if (length < 0.001f)
-                return;
-            float     angle = atan2f(dy, dx) * 180.0f / M_PI;
-            SDL_FRect rect  = {start.x, start.y - thickness / 2, length, thickness};
-            SDL_RenderFillRectF(m_Renderer, &rect);
+            return;
         }
+
+        // Direction vector
+        float dx     = end.x - start.x;
+        float dy     = end.y - start.y;
+        float length = sqrtf(dx * dx + dy * dy);
+        if (length < 0.001f)
+            return;
+
+        // Normalize perpendicular vector
+        float px = -dy / length * (thickness / 2.0f);
+        float py = dx / length * (thickness / 2.0f);
+
+        // Build quad (two triangles)
+        Vector2 v1 = {start.x + px, start.y + py};
+        Vector2 v2 = {start.x - px, start.y - py};
+        Vector2 v3 = {end.x + px, end.y + py};
+        Vector2 v4 = {end.x - px, end.y - py};
+
+        // Fill triangles (your DrawTriangle from before!)
+        DrawTriangle(v1, v2, v3, color);
+        DrawTriangle(v2, v3, v4, color);
     }
 
     void SDLRenderer::DrawRectangle(Rectangle rec, Color color) {
@@ -105,44 +124,91 @@ namespace ugfx::sdl {
     void SDLRenderer::DrawCircle(Vector2 center, float radius, Color color) {
         if (!m_Renderer)
             return;
+
         SDL_SetRenderDrawColor(m_Renderer, color.r, color.g, color.b, color.a);
-        SDL_FRect rect = {center.x - radius, center.y - radius, radius * 2, radius * 2};
-        SDL_RenderFillRectF(m_Renderer, &rect);  // Simplified circle (square for demo)
+
+        int yStart = static_cast<int>(center.y - radius);
+        int yEnd   = static_cast<int>(center.y + radius);
+
+        for (int y = yStart; y <= yEnd; ++y) {
+            float dy     = y + 0.5f - center.y;
+            float dx     = sqrtf(radius * radius - dy * dy);  // half-width of the line at this y
+            float xStart = center.x - dx;
+            float xEnd   = center.x + dx;
+            SDL_RenderDrawLineF(m_Renderer, xStart, static_cast<float>(y), xEnd, static_cast<float>(y));
+        }
     }
 
     void SDLRenderer::DrawTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Color color) {
         if (!m_Renderer)
             return;
+
+        // Convert to integer for pixel rasterization
+        struct Point {
+            int x, y;
+        };
+        Point p1{static_cast<int>(v1.x), static_cast<int>(v1.y)};
+        Point p2{static_cast<int>(v2.x), static_cast<int>(v2.y)};
+        Point p3{static_cast<int>(v3.x), static_cast<int>(v3.y)};
+
+        // Sort vertices by y-coordinate ascending (p1.y <= p2.y <= p3.y)
+        if (p2.y < p1.y)
+            std::swap(p1, p2);
+        if (p3.y < p1.y)
+            std::swap(p1, p3);
+        if (p3.y < p2.y)
+            std::swap(p2, p3);
+
+        auto drawSpan = [&](int y, int x1, int x2) {
+            if (x1 > x2)
+                std::swap(x1, x2);
+            SDL_RenderDrawLine(m_Renderer, x1, y, x2, y);
+        };
+
         SDL_SetRenderDrawColor(m_Renderer, color.r, color.g, color.b, color.a);
-        SDL_RenderDrawLineF(m_Renderer, v1.x, v1.y, v2.x, v2.y);
-        SDL_RenderDrawLineF(m_Renderer, v2.x, v2.y, v3.x, v3.y);
-        SDL_RenderDrawLineF(m_Renderer, v3.x, v3.y, v1.x, v1.y);
+
+        auto edgeInterp = [](Point a, Point b, int y) {
+            if (a.y == b.y)
+                return a.x;
+            return a.x + (b.x - a.x) * (y - a.y) / (b.y - a.y);
+        };
+
+        // Fill bottom half (p1 -> p2, p1 -> p3)
+        for (int y = p1.y; y <= p2.y; ++y) {
+            int x1 = edgeInterp(p1, p2, y);
+            int x2 = edgeInterp(p1, p3, y);
+            drawSpan(y, x1, x2);
+        }
+
+        // Fill top half (p2 -> p3, p1 -> p3)
+        for (int y = p2.y; y <= p3.y; ++y) {
+            int x1 = edgeInterp(p2, p3, y);
+            int x2 = edgeInterp(p1, p3, y);
+            drawSpan(y, x1, x2);
+        }
     }
 
     Texture SDLRenderer::LoadTexture(const std::string& path) {
         if (!m_Renderer)
-            return Texture{0, 0, 0};  // 0 means invalid
+            return {0, 0, 0};
 
         SDL_Texture* tex = IMG_LoadTexture(m_Renderer, path.c_str());
         if (!tex) {
             std::cerr << "Failed to load texture: " << IMG_GetError() << std::endl;
-            return Texture{0, 0, 0};
+            return {0, 0, 0};
         }
 
         int w, h;
         SDL_QueryTexture(tex, nullptr, nullptr, &w, &h);
-
-        unsigned int id  = g_nextTextureId++;
-        g_textureMap[id] = tex;
-
-        return Texture{static_cast<int>(id), w, h};
+        unsigned int id = m_TextureManager.Add(tex);
+        return {static_cast<int>(id), w, h};
     }
 
     void SDLRenderer::UnloadTexture(Texture tex) {
-        auto it = g_textureMap.find(tex.id);
-        if (it != g_textureMap.end()) {
-            SDL_DestroyTexture(it->second);
-            g_textureMap.erase(it);
+        SDL_Texture* t = m_TextureManager.Get(tex.id);
+        if (t) {
+            SDL_DestroyTexture(t);
+            m_TextureManager.Remove(tex.id);
         }
     }
 
@@ -150,11 +216,7 @@ namespace ugfx::sdl {
         if (!m_Renderer || tex.id == 0)
             return;
 
-        auto it = g_textureMap.find(tex.id);
-        if (it == g_textureMap.end())
-            return;
-
-        SDL_Texture* realTex = it->second;
+        SDL_Texture* realTex = m_TextureManager.Get(tex.id);
 
         SDL_SetTextureColorMod(realTex, tint.r, tint.g, tint.b);
         SDL_SetTextureAlphaMod(realTex, tint.a);
@@ -167,11 +229,7 @@ namespace ugfx::sdl {
         if (!m_Renderer || tex.id == 0)
             return;
 
-        auto it = g_textureMap.find(tex.id);
-        if (it == g_textureMap.end())
-            return;
-
-        SDL_Texture* realTex = it->second;
+        SDL_Texture* realTex = m_TextureManager.Get(tex.id);
 
         SDL_SetTextureColorMod(realTex, tint.r, tint.g, tint.b);
         SDL_SetTextureAlphaMod(realTex, tint.a);
@@ -187,11 +245,7 @@ namespace ugfx::sdl {
         if (!m_Renderer || tex.id == 0)
             return;
 
-        auto it = g_textureMap.find(tex.id);
-        if (it == g_textureMap.end())
-            return;
-
-        SDL_Texture* realTex = it->second;
+        SDL_Texture* realTex = m_TextureManager.Get(tex.id);
 
         SDL_SetTextureColorMod(realTex, tint.r, tint.g, tint.b);
         SDL_SetTextureAlphaMod(realTex, tint.a);
@@ -212,20 +266,18 @@ namespace ugfx::sdl {
         TTF_Font* font = TTF_OpenFont(path.c_str(), size);
         if (!font) {
             std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
-            return Font{0};  // invalid
+            return {0};
         }
 
-        unsigned int id = g_nextFontId++;
-        g_fontMap[id]   = font;
-
-        return Font{static_cast<int>(id)};
+        unsigned int id = m_FontManager.Add(font);
+        return {static_cast<int>(id)};
     }
 
     void SDLRenderer::UnloadFont(Font font) {
-        auto it = g_fontMap.find(font.id);
-        if (it != g_fontMap.end()) {
-            TTF_CloseFont(it->second);
-            g_fontMap.erase(it);
+        TTF_Font* f = m_FontManager.Get(font.id);
+        if (f) {
+            TTF_CloseFont(f);
+            m_FontManager.Remove(font.id);
         }
     }
 
@@ -235,9 +287,7 @@ namespace ugfx::sdl {
 
         TTF_Font* f = nullptr;
         if (font.id != 0) {
-            auto it = g_fontMap.find(font.id);
-            if (it != g_fontMap.end())
-                f = it->second;
+            f = m_FontManager.Get(font.id);
         } else {
             f = m_DefaultFont;  // fallback
         }

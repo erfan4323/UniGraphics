@@ -19,6 +19,7 @@ namespace ugfx::sdl {
         void BeginDrawing() override;
         void EndDrawing() override;
         void Clear(Color color) override;
+        void ReleaseAllResources() override;
 
         // IShapeRenderer
         void DrawPixel(Vector2 pos, Color color) override;
@@ -46,10 +47,8 @@ namespace ugfx::sdl {
         SDL_Renderer* m_Renderer = nullptr;
         TTF_Font*     m_DefaultFont = nullptr;
 
-        static std::unordered_map<unsigned int, SDL_Texture*> g_textureMap;
-        static unsigned int                                   g_nextTextureId;
-        static std::unordered_map<unsigned int, TTF_Font*>    g_fontMap;
-        static unsigned int                                   g_nextFontId;
+        ResourceManager<SDL_Texture> m_TextureManager;
+        ResourceManager<TTF_Font>    m_FontManager;
     };
 
 }  // namespace ugfx::sdl

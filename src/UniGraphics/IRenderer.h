@@ -41,10 +41,12 @@ namespace ugfx {
 
     class IRenderer : public IShapeRenderer, public IImageRenderer, public ITextRenderer {
        public:
-        virtual ~IRenderer()            = default;
-        virtual void BeginDrawing()     = 0;
-        virtual void EndDrawing()       = 0;
-        virtual void Clear(Color color) = 0;
+        virtual ~IRenderer() = default;
+
+        virtual void BeginDrawing()        = 0;
+        virtual void EndDrawing()          = 0;
+        virtual void Clear(Color color)    = 0;
+        virtual void ReleaseAllResources() = 0;
     };
 
 }  // namespace ugfx

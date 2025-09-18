@@ -15,6 +15,7 @@ namespace ugfx::raylib {
         void BeginDrawing() override;
         void EndDrawing() override;
         void Clear(Color color) override;
+        void ReleaseAllResources() override;
 
         // IShapeRenderer
         void DrawPixel(Vector2 pos, Color color) override;

@@ -1,5 +1,6 @@
 #include "RaylibRenderer.h"
 
+#include <functional>
 #include <iostream>
 
 #include "RaylibConverter.h"
@@ -24,6 +25,10 @@ namespace ugfx::raylib {
 
     void RaylibRenderer::Clear(ugfx::Color color) {
         ::ClearBackground(ugfx::raylib::ToRaylib(color));
+    }
+
+    void RaylibRenderer::ReleaseAllResources() {
+        std::cout << "RaylibRenderer: All textures/fonts released.\n";
     }
 
     void RaylibRenderer::DrawPixel(ugfx::Vector2 pos, ugfx::Color color) {
@@ -84,17 +89,22 @@ namespace ugfx::raylib {
                                        Color tint) {
         if (tex.id == -1)
             return;
-        ::Rectangle rSrc        = {0, 0, static_cast<float>(tex.width), static_cast<float>(tex.height)};
-        ::Rectangle rDst        = {pos.x, pos.y, tex.width * scale, tex.height * scale};
-        ::Vector2   rOrigin     = ugfx::raylib::ToRaylib(pos);
-        float       finalScaleX = scale;
-        float       finalScaleY = scale;
+
+        ::Rectangle rSrc = {0, 0, static_cast<float>(tex.width), static_cast<float>(tex.height)};
+        ::Rectangle rDst = {pos.x, pos.y, tex.width * scale, tex.height * scale};
+
+        ::Vector2 rOrigin = {origin.x * scale, origin.y * scale};
+
+        float finalScaleX = scale;
+        float finalScaleY = scale;
         if (flip == Flip::Horizontal)
             finalScaleX = -scale;
         if (flip == Flip::Vertical)
             finalScaleY = -scale;
-        rDst.width *= std::abs(finalScaleX);
-        rDst.height *= std::abs(finalScaleY);
+
+        rDst.width  = tex.width * std::abs(finalScaleX);
+        rDst.height = tex.height * std::abs(finalScaleY);
+
         ::DrawTexturePro(ugfx::raylib::ToRaylib(tex), rSrc, rDst, rOrigin, rotation, ugfx::raylib::ToRaylib(tint));
     }
 

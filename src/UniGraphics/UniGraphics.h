@@ -6,3 +6,4 @@
 #include "IInput.h"
 #include "IRenderer.h"
 #include "IWindow.h"
+#include "ResourceManager.h"
