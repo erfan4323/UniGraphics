@@ -22,6 +22,10 @@ namespace ugfx::raylib {
         return {(float) r.x, (float) r.y, (float) r.width, (float) r.height};
     }
 
+    inline ::Texture ToRaylib(const Texture& tex) {
+        return {static_cast<unsigned int>(tex.id), tex.width, tex.height};
+    }
+
     // Convert from raylib types
     inline Vector2 FromRaylib(const ::Vector2& v) {
         return {v.x, v.y};

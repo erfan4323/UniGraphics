@@ -38,6 +38,8 @@ namespace ugfx {
         int id = -1;  // Invalid by default
     };
 
+    enum class Flip { None, Horizontal, Vertical };
+
     enum class Key {
         key_null = 0,  // Key: NULL, used for no key pressed
         // Alphanumeric keys

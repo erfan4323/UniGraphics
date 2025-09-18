@@ -7,6 +7,7 @@
 #define BUILD_DIR "build/"
 #define OBJ_DIR BUILD_DIR "obj/"
 #define SRC_DIR "src/"
+#define EXM_DIR "examples/"
 
 #define SDL_PATH "Vendor/SDL2-2.32.10/x86_64-w64-mingw32/"
 #define SDL_IMAGE_PATH "Vendor/SDL2_image-2.8.8/x86_64-w64-mingw32/"
@@ -88,27 +89,39 @@ bool build_imgui(void) {
 }
 
 bool build_main() {
-    const char *core_includes[] = {IMGUI_PATH, IMGUI_PATH "backends/", SDL_PATH "include", RAYLIB_PATH "include"};
+    const char *core_includes[] = {SDL_PATH "include", SDL_IMAGE_PATH "include", SDL_TTF_PATH "include",
+                                   RAYLIB_PATH "include", SRC_DIR};
 
-    const char *core_libs[] = {"-L" BUILD_DIR,      "-L" RAYLIB_PATH "lib",
-                               "-L" SDL_PATH "lib", "-lUniGraphics",
-                               "-lraylib",          "-lgdi32",
-                               "-lopengl32",        "-lshell32",
-                               "-luser32",          "-lkernel32",
-                               "-lSDL2main",        "-lSDL2",
-                               "-lSDL2_ttf",        "-lSDL2_image",
-                               "-lwinmm",           "-lmingw32",
-                               "-lDbghelp",         "-lpthread"};
+    const char *core_libs[] = {"-L" BUILD_DIR,
+                               "-L" RAYLIB_PATH "lib",
+                               "-L" SDL_PATH "lib",
+                               "-L" SDL_IMAGE_PATH "lib",
+                               "-L" SDL_TTF_PATH "lib",
+                               "-lUniGraphics",
+                               "-lraylib",
+                               "-lgdi32",
+                               "-lopengl32",
+                               "-lshell32",
+                               "-luser32",
+                               "-lkernel32",
+                               "-lSDL2main",
+                               "-lSDL2",
+                               "-lSDL2_ttf",
+                               "-lSDL2_image",
+                               "-lwinmm",
+                               "-lmingw32",
+                               "-lDbghelp",
+                               "-lpthread"};
 
     def_cmd();
-    cmd_append(&cmd, SRC_DIR "main.cpp");
+    cmd_append(&cmd, EXM_DIR "Live_Switch_Backend.cpp");
     for (size_t i = 0; i < ARRAY_SIZE(core_includes); i++)
         cmd_append(&cmd, "-I", core_includes[i]);
 
     for (size_t i = 0; i < ARRAY_SIZE(core_libs); i++)
         cmd_append(&cmd, core_libs[i]);
 
-    cmd_append(&cmd, "-o", BUILD_DIR "UniGraphics");
+    cmd_append(&cmd, "-o", BUILD_DIR "Examples");
 
     if (!cmd_run(&cmd)) return false;
 

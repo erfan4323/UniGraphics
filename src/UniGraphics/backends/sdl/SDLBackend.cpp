@@ -1,6 +1,8 @@
 #include "SDLBackend.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <iostream>
 
@@ -15,6 +17,15 @@ namespace ugfx::sdl {
             std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;
             return;
         }
+        if (IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) == 0) {
+            std::cerr << "IMG_Init failed: " << IMG_GetError() << std::endl;
+            return;
+        }
+        if (TTF_Init() != 0) {
+            std::cerr << "TTF_Init failed: " << TTF_GetError() << std::endl;
+            return;
+        }
+
         SDL_version version;
         SDL_GetVersion(&version);
         std::cout << "SDL Version: " << (int) version.major << "." << (int) version.minor << "." << (int) version.patch
@@ -44,6 +55,8 @@ namespace ugfx::sdl {
         m_Renderer.reset();  // Destroy renderer first
         m_Window.reset();
         m_Input.reset();
+        TTF_Quit();
+        IMG_Quit();
         SDL_Quit();
     }
 
