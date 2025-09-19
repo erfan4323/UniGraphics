@@ -14,19 +14,39 @@ namespace ugfx::sdl {
         Shutdown();
     }
 
-    bool SDLWindow::Create(const std::string& title, int width, int height, bool fullscreen) {
+    bool SDLWindow::Create(const std::string& title, int width, int height, WindowFlags flags) {
+        Uint32 sdlFlags = SDL_WINDOW_SHOWN;
+
+        if (HasFlag(flags, WindowFlags::Fullscreen))
+            sdlFlags |= SDL_WINDOW_FULLSCREEN;
+        if (HasFlag(flags, WindowFlags::Borderless))
+            sdlFlags |= SDL_WINDOW_BORDERLESS;
+        if (HasFlag(flags, WindowFlags::Resizable))
+            sdlFlags |= SDL_WINDOW_RESIZABLE;
+        if (HasFlag(flags, WindowFlags::Hidden))
+            sdlFlags |= SDL_WINDOW_HIDDEN;
+        if (HasFlag(flags, WindowFlags::AlwaysOnTop))
+            sdlFlags |= SDL_WINDOW_ALWAYS_ON_TOP;
+
         // If window exists, update or recreate
         if (m_Window) {
             SDL_SetWindowTitle(m_Window, title.c_str());
             SDL_SetWindowSize(m_Window, width, height);
-            SDL_SetWindowFullscreen(m_Window, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
             SDL_SetWindowPosition(m_Window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+            if (HasFlag(flags, WindowFlags::Fullscreen)) {
+                SDL_SetWindowFullscreen(m_Window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+            } else {
+                SDL_SetWindowFullscreen(m_Window, 0);
+            }
+            SDL_SetWindowBordered(m_Window, HasFlag(flags, WindowFlags::Borderless) ? SDL_FALSE : SDL_TRUE);
+            SDL_SetWindowAlwaysOnTop(m_Window, HasFlag(flags, WindowFlags::AlwaysOnTop) ? SDL_TRUE : SDL_FALSE);
+            SDL_SetWindowResizable(m_Window, HasFlag(flags, WindowFlags::Resizable) ? SDL_TRUE : SDL_FALSE);
             return true;
         }
 
-        Uint32 flags = SDL_WINDOW_SHOWN | (fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
         m_Window =
-            SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+            SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, sdlFlags);
         m_LastFrameTime = SDL_GetTicks();
         return m_Window != nullptr;
     }
@@ -86,6 +106,10 @@ namespace ugfx::sdl {
         float         deltaTime   = (currentTime - lastTime) / 1000.0f;
         lastTime                  = currentTime;
         return deltaTime;
+    }
+
+    uint32_t SDLWindow::GetTicks() const {
+        return SDL_GetTicks();
     }
 
 }  // namespace ugfx::sdl

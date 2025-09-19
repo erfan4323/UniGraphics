@@ -9,11 +9,24 @@ namespace ugfx::raylib {
         Shutdown();
     }
 
-    bool RaylibWindow::Create(const std::string& title, int width, int height, bool fullscreen) {
+    bool RaylibWindow::Create(const std::string& title, int width, int height, WindowFlags flags) {
+        unsigned int rlFlags = 0;
+
+        if (HasFlag(flags, WindowFlags::Fullscreen))
+            rlFlags |= FLAG_FULLSCREEN_MODE;
+        if (HasFlag(flags, WindowFlags::Borderless))
+            rlFlags |= FLAG_WINDOW_UNDECORATED;
+        if (HasFlag(flags, WindowFlags::Resizable))
+            rlFlags |= FLAG_WINDOW_RESIZABLE;
+        if (HasFlag(flags, WindowFlags::VSync))
+            rlFlags |= FLAG_VSYNC_HINT;
+        if (HasFlag(flags, WindowFlags::Hidden))
+            rlFlags |= FLAG_WINDOW_HIDDEN;
+        if (HasFlag(flags, WindowFlags::AlwaysOnTop))
+            rlFlags |= FLAG_WINDOW_TOPMOST;
+
+        SetConfigFlags(rlFlags);
         InitWindow(width, height, title.c_str());
-        if (fullscreen) {
-            ToggleFullscreen();
-        }
         return IsWindowReady();
     }
 
@@ -45,6 +58,10 @@ namespace ugfx::raylib {
 
     float RaylibWindow::GetDeltaTime() const {
         return GetFrameTime();
+    }
+
+    uint32_t RaylibWindow::GetTicks() const {
+        return static_cast<uint32_t>(GetTime() * 1000.0);
     }
 
 }  // namespace ugfx::raylib

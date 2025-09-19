@@ -32,7 +32,7 @@ std::string GetBackendName(BackendType backend) {
 }
 
 bool InitBackend(BackendContext& ctx, BackendType type, const std::string& title, int width, int height,
-                 bool fullscreen) {
+                 WindowFlags flags) {
     ctx.backend = CreateBackend(type);
     if (!ctx.backend) {
         std::cerr << "Failed to create backend\n";
@@ -48,7 +48,7 @@ bool InitBackend(BackendContext& ctx, BackendType type, const std::string& title
         return false;
     }
 
-    if (!ctx.window->Create(title, width, height, fullscreen)) {
+    if (!ctx.window->Create(title, width, height, flags)) {
         std::cerr << "Failed to create window\n";
         return false;
     }
@@ -98,9 +98,11 @@ int main() {
 
     std::cout << texturePath << '\n';
 
+    WindowFlags flags = WindowFlags::Resizable;
+
     // Backend setup
     BackendContext ctx;
-    if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen))
+    if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, flags))
         return -1;
 
     // Load assets
@@ -149,7 +151,7 @@ int main() {
             std::cout << "------------------------------------------------------------------------------\n";
             std::cout << "Switching to backend: " << GetBackendName(backends[currentBackendIndex]) << "\n";
 
-            if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen))
+            if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, flags))
                 return -1;
 
             // Reload assets
