@@ -2,6 +2,9 @@
 
 namespace ugfx::raylib {
 
+    void RaylibInput::ProcessEvents(void* event) {
+    }
+
     bool RaylibInput::IsKeyDown(ugfx::Key key) const {
         return ::IsKeyDown(MapKey(key));
     }

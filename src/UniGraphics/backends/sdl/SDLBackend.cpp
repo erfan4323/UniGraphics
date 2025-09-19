@@ -31,7 +31,9 @@ namespace ugfx::sdl {
         std::cout << "SDL Version: " << (int) version.major << "." << (int) version.minor << "." << (int) version.patch
                   << std::endl;
 
-        m_Window = std::make_unique<SDLWindow>();
+        m_Input = std::make_unique<SDLInput>();
+
+        m_Window = std::make_unique<SDLWindow>(m_Input.get());
         if (!m_Window) {
             std::cerr << "Failed to create SDLWindow" << std::endl;
             return;
@@ -48,7 +50,6 @@ namespace ugfx::sdl {
             std::cerr << "Failed to create SDLRenderer" << std::endl;
             return;
         }
-        m_Input = std::make_unique<SDLInput>();
     }
 
     SDLBackend::~SDLBackend() {

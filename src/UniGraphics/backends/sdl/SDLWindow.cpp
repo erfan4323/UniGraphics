@@ -2,8 +2,12 @@
 
 namespace ugfx::sdl {
 
-    SDLWindow::SDLWindow() {
+    // SDLWindow::SDLWindow() {
+    // }
+
+    SDLWindow::SDLWindow(IInput* input) {
         m_Window = SDL_CreateWindow("", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 10, 10, 0);
+        m_Input  = input;
     }
 
     SDLWindow::~SDLWindow() {
@@ -47,6 +51,8 @@ namespace ugfx::sdl {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 m_ShouldClose = true;
+
+            m_Input->ProcessEvents(&event);
         }
 
         if (m_TargetFrameTime > 0.0f) {

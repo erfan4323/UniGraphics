@@ -8,7 +8,8 @@ namespace ugfx::sdl {
 
     class SDLWindow : public IWindow {
        public:
-        SDLWindow();
+        // SDLWindow();
+        explicit SDLWindow(IInput* input);
         ~SDLWindow() override;
 
         bool                Create(const std::string& title, int width, int height, bool fullscreen) override;
@@ -27,6 +28,8 @@ namespace ugfx::sdl {
         bool        m_ShouldClose     = false;
         Uint32      m_LastFrameTime   = 0;
         float       m_TargetFrameTime = 0.0f;
+
+        IInput* m_Input = nullptr;
     };
 
 }  // namespace ugfx::sdl

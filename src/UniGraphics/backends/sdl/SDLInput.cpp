@@ -7,50 +7,54 @@
 namespace ugfx::sdl {
 
     SDLInput::SDLInput() {
-        // Initialize key state tracking
-        m_PressedKeys.clear();
-        m_ReleasedKeys.clear();
+        m_CurrentDown.reset();
+        m_PressedThisFrame.reset();
+        m_ReleasedThisFrame.reset();
     }
 
     SDLInput::~SDLInput() = default;
 
+    void SDLInput::ProcessEvents(void* event) {
+        // m_CurrentDown.reset();
+        m_PressedThisFrame.reset();
+        m_ReleasedThisFrame.reset();
+
+        auto sdlEvent = static_cast<SDL_Event*>(event);
+
+        switch (sdlEvent->type) {
+            case SDL_KEYDOWN: {
+                if (!sdlEvent->key.repeat) {
+                    SDL_Scancode sc = sdlEvent->key.keysym.scancode;
+                    if (!m_CurrentDown.test(sc)) {
+                        m_CurrentDown.set(sc);
+                        m_PressedThisFrame.set(sc);
+                    }
+                }
+            } break;
+            case SDL_KEYUP: {
+                SDL_Scancode sc = sdlEvent->key.keysym.scancode;
+                m_CurrentDown.reset(sc);
+                m_ReleasedThisFrame.set(sc);
+            } break;
+            default:
+                break;
+        }
+    }
+
     bool SDLInput::IsKeyDown(Key key) const {
-        const Uint8* state = SDL_GetKeyboardState(nullptr);
-        return state[MapKey(key)];
+        return m_CurrentDown.test(MapKey(key));
     }
 
     bool SDLInput::IsKeyPressed(Key key) const {
-        SDL_Scancode scancode = MapKey(key);
-        const Uint8* state    = SDL_GetKeyboardState(nullptr);
-        bool         isDown   = state[scancode];
-
-        // Check if key was pressed this frame
-        bool wasPressed = std::find(m_PressedKeys.begin(), m_PressedKeys.end(), scancode) != m_PressedKeys.end();
-        if (isDown && !wasPressed) {
-            m_PressedKeys.push_back(scancode);
-            return true;
-        }
-        return false;
+        return m_PressedThisFrame.test(MapKey(key));
     }
 
     bool SDLInput::IsKeyReleased(Key key) const {
-        SDL_Scancode scancode = MapKey(key);
-        const Uint8* state    = SDL_GetKeyboardState(nullptr);
-        bool         isDown   = state[scancode];
-
-        // Check if key was released this frame
-        bool wasPressed = std::find(m_PressedKeys.begin(), m_PressedKeys.end(), scancode) != m_PressedKeys.end();
-        if (!isDown && wasPressed) {
-            m_PressedKeys.erase(std::remove(m_PressedKeys.begin(), m_PressedKeys.end(), scancode), m_PressedKeys.end());
-            m_ReleasedKeys.push_back(scancode);
-            return true;
-        }
-        return false;
+        return m_ReleasedThisFrame.test(MapKey(key));
     }
 
     bool SDLInput::IsKeyUp(Key key) const {
-        const Uint8* state = SDL_GetKeyboardState(nullptr);
-        return !state[MapKey(key)];
+        return !m_CurrentDown.test(MapKey(key));
     }
 
     SDL_Scancode SDLInput::MapKey(Key key) const {
