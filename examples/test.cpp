@@ -86,8 +86,10 @@ int main() {
     // Demo objects
     Rectangle rect     = {0.0f, 0.0f, 50.0f, 50.0f};  // Relative to shapesPanel
     float     speed    = 250.0f;
-    float     rotation = 0.0f;
     int       fontSize = 20;
+
+    float totalTime = 0.0f;  // keeps track of absolute time
+    float rotation  = 0.0f;
 
     // Asset paths
     std::string exeDir      = std::filesystem::current_path().string();
@@ -110,6 +112,12 @@ int main() {
         ctx.window->PollEvents();
         float dt = ctx.window->GetDeltaTime();
 
+        // Clamp dt to avoid huge jumps after backend switch
+        dt = std::clamp(dt, 0.001f, 0.05f);
+
+        totalTime += dt;
+        rotation = 90.0f * totalTime;  // rotation in degrees
+
         // --- Input ---
         Vector2 velocity{0, 0};
         if (ctx.input->IsKeyDown(Key::right))
@@ -131,19 +139,20 @@ int main() {
         if (ctx.input->IsKeyPressed(Key::tab)) {
             currentBackendIndex = (currentBackendIndex + 1) % backends.size();
 
-            // Cleanup
+            // Cleanup assets
             if (texture.id != -1)
                 ctx.renderer->UnloadTexture(texture);
             if (font.id != -1)
                 ctx.renderer->UnloadFont(font);
             ctx.backend.reset();
 
-            std::cout << "------------------------------------------------------------------------------" << "\n";
+            std::cout << "------------------------------------------------------------------------------\n";
             std::cout << "Switching to backend: " << GetBackendName(backends[currentBackendIndex]) << "\n";
 
             if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen))
                 return -1;
 
+            // Reload assets
             texture = LoadTextureSafe(ctx.renderer, texturePath);
             font    = LoadFontSafe(ctx.renderer, fontPath, fontSize);
         }
@@ -151,7 +160,6 @@ int main() {
         // --- Update ---
         rect.x += velocity.x * dt;
         rect.y += velocity.y * dt;
-        rotation += 90.0f * dt;
 
         // Panels
         Rectangle shapesPanel   = {10, 10, 380, 300};
@@ -183,7 +191,7 @@ int main() {
 
         // --- Shapes inside shapesPanel ---
         Vector2   shapesOffset = {shapesPanel.x + 10, shapesPanel.y + 10};
-        Color     rectColor    = {static_cast<unsigned char>(128 + 127 * std::sin(rotation * 0.1f)), 165, 0, 255};
+        Color     rectColor    = {static_cast<unsigned char>(128 + 127 * std::sin(totalTime * 2.0f)), 165, 0, 255};
         Rectangle rectLocal    = {rect.x + shapesOffset.x, rect.y + shapesOffset.y, rect.width, rect.height};
         ctx.renderer->DrawRectangle(rectLocal, rectColor);
         ctx.renderer->DrawPixel({rectLocal.x + 25, rectLocal.y + 25}, {0, 255, 255, 255});
