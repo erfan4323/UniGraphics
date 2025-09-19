@@ -266,13 +266,11 @@ namespace ugfx::sdl {
                                     Color tint) {
         if (!m_Renderer || tex.id == 0)
             return;
-
         SDL_Texture* realTex = m_TextureManager.Get(tex.id);
-
         SDL_SetTextureColorMod(realTex, tint.r, tint.g, tint.b);
         SDL_SetTextureAlphaMod(realTex, tint.a);
 
-        SDL_FRect  dst    = {pos.x, pos.y, tex.width * scale, tex.height * scale};
+        SDL_FRect dst = {pos.x - (origin.x * scale), pos.y - (origin.y * scale), tex.width * scale, tex.height * scale};
         SDL_FPoint center = {origin.x * scale, origin.y * scale};
 
         SDL_RendererFlip sdlFlip = SDL_FLIP_NONE;
@@ -280,7 +278,6 @@ namespace ugfx::sdl {
             sdlFlip = SDL_FLIP_HORIZONTAL;
         else if (flip == Flip::Vertical)
             sdlFlip = SDL_FLIP_VERTICAL;
-
         SDL_RenderCopyExF(m_Renderer, realTex, nullptr, &dst, rotation, &center, sdlFlip);
     }
 
