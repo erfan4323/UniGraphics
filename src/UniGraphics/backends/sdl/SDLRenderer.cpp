@@ -4,6 +4,8 @@
 #include <functional>
 #include <iostream>
 
+#include "Lexend.h"
+
 #define M_PI 3.14159265358979323846  // pi
 
 namespace ugfx::sdl {
@@ -24,9 +26,18 @@ namespace ugfx::sdl {
             std::cout << "Using software renderer as fallback" << std::endl;
         }
         SDL_SetRenderDrawBlendMode(m_Renderer, SDL_BLENDMODE_BLEND);
-        m_DefaultFont = TTF_OpenFont("defaults/Lexend.ttf", 16);
+
+        // Create RWops from memory
+        SDL_RWops* rw = SDL_RWFromConstMem(Lexend_ttf, Lexend_ttf_len);
+        if (!rw) {
+            std::cerr << "SDL_RWFromConstMem failed\n";
+            return;
+        }
+
+        // Open font from RWops, 16px default size
+        m_DefaultFont = TTF_OpenFontRW(rw, 1, 16);  // 1 = auto-free RWops
         if (!m_DefaultFont) {
-            std::cerr << "Failed to load default font: " << TTF_GetError() << std::endl;
+            std::cerr << "Failed to load embedded default font: " << TTF_GetError() << "\n";
         }
     }
 
