@@ -35,6 +35,8 @@ namespace ugfx::sdl {
             TTF_CloseFont(m_DefaultFont);
         if (m_Renderer)
             SDL_DestroyRenderer(m_Renderer);
+
+        ReleaseAllResources();
     }
 
     void SDLRenderer::BeginDrawing() {
@@ -116,9 +118,18 @@ namespace ugfx::sdl {
     void SDLRenderer::DrawRectangleLines(Rectangle rec, float thickness, Color color) {
         if (!m_Renderer)
             return;
+
         SDL_SetRenderDrawColor(m_Renderer, color.r, color.g, color.b, color.a);
-        SDL_FRect rect = {rec.x, rec.y, rec.width, rec.height};
-        SDL_RenderDrawRectF(m_Renderer, &rect);
+
+        SDL_FRect top    = {rec.x, rec.y, rec.width, thickness};
+        SDL_FRect bottom = {rec.x, rec.y + rec.height - thickness, rec.width, thickness};
+        SDL_FRect left   = {rec.x, rec.y, thickness, rec.height};
+        SDL_FRect right  = {rec.x + rec.width - thickness, rec.y, thickness, rec.height};
+
+        SDL_RenderFillRectF(m_Renderer, &top);
+        SDL_RenderFillRectF(m_Renderer, &bottom);
+        SDL_RenderFillRectF(m_Renderer, &left);
+        SDL_RenderFillRectF(m_Renderer, &right);
     }
 
     void SDLRenderer::DrawCircle(Vector2 center, float radius, Color color) {
@@ -268,9 +279,8 @@ namespace ugfx::sdl {
             std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
             return {0};
         }
-
-        unsigned int id = m_FontManager.Add(font);
-        return {static_cast<int>(id)};
+        int id = m_FontManager.Add(font);
+        return {id};
     }
 
     void SDLRenderer::UnloadFont(Font font) {
@@ -285,14 +295,9 @@ namespace ugfx::sdl {
         if (!m_Renderer)
             return;
 
-        TTF_Font* f = nullptr;
-        if (font.id != 0) {
-            f = m_FontManager.Get(font.id);
-        } else {
-            f = m_DefaultFont;  // fallback
-        }
+        TTF_Font* f = m_FontManager.Get(font.id);
         if (!f)
-            return;
+            f = m_DefaultFont;
 
         SDL_Color    c    = {color.r, color.g, color.b, color.a};
         SDL_Surface* surf = TTF_RenderText_Solid(f, text.c_str(), c);

@@ -2,33 +2,29 @@
 #include <unordered_map>
 
 template <typename T>
-struct ResourceManager {
-    std::unordered_map<unsigned int, T*> map;
-    unsigned int                         nextId = 1;
-
-    unsigned int Add(T* resource) {
-        unsigned int id = nextId++;
-        map[id]         = resource;
+class ResourceManager {
+   public:
+    int Add(T* resource) {
+        int id        = nextId++;
+        resources[id] = resource;
         return id;
     }
 
-    void Remove(unsigned int id) {
-        auto it = map.find(id);
-        if (it != map.end()) {
-            map.erase(it);
-        }
+    T* Get(int id) {
+        auto it = resources.find(id);
+        return it != resources.end() ? it->second : nullptr;
     }
+
+    void Remove(int id) { resources.erase(id); }
 
     void Clear(std::function<void(T*)> deleter) {
-        for (auto& [id, res] : map) {
+        for (auto& [id, res] : resources) {
             deleter(res);
         }
-        map.clear();
-        nextId = 1;  // reset ID counter
+        resources.clear();
     }
 
-    T* Get(unsigned int id) {
-        auto it = map.find(id);
-        return it != map.end() ? it->second : nullptr;
-    }
+   private:
+    int                         nextId = 1;
+    std::unordered_map<int, T*> resources;
 };

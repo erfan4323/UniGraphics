@@ -40,7 +40,17 @@ namespace ugfx::raylib {
         void DrawText(const std::string& text, Vector2 pos, int fontSize, Color color) override;
 
        private:
-        ::Font m_DefaultFont = {0};
+        ResourceManager<::Font>      m_FontManager;
+        ResourceManager<::Texture2D> m_TextureManager;
+
+        ::Font defaultFont() { return GetFontDefault(); }
+        ::Font resolveFont(Font font) {
+            if (font.id == -1)
+                return defaultFont();
+            if (auto* f = m_FontManager.Get(font.id))
+                return *f;
+            return defaultFont();
+        }
     };
 
 }  // namespace ugfx::raylib

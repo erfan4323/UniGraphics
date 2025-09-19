@@ -35,7 +35,7 @@ namespace ugfx {
     };
 
     struct Font {
-        int id = -1;  // Invalid by default
+        int id = -1;  // universal ID for resource manager
     };
 
     enum class Flip { None, Horizontal, Vertical };

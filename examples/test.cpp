@@ -138,11 +138,11 @@ int main() {
                 ctx.renderer->UnloadFont(font);
             ctx.backend.reset();
 
-            if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen))
-                return -1;
-
             std::cout << "------------------------------------------------------------------------------" << "\n";
             std::cout << "Switching to backend: " << GetBackendName(backends[currentBackendIndex]) << "\n";
+
+            if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen))
+                return -1;
 
             texture = LoadTextureSafe(ctx.renderer, texturePath);
             font    = LoadFontSafe(ctx.renderer, fontPath, fontSize);
@@ -197,7 +197,7 @@ int main() {
                                    {shapesOffset.x + 290, shapesOffset.y + 200}, {255, 255, 255, 255});
 
         // --- Textures inside texturesPanel ---
-        Vector2 texturesOffset = {texturesPanel.x + 10, texturesPanel.y + 10};
+        Vector2 texturesOffset = {texturesPanel.x + 50, texturesPanel.y + 50};
         if (texture.id != -1) {
             ctx.renderer->DrawTexture(texture, {texturesOffset.x, texturesOffset.y}, {255, 255, 255, 255});
             ctx.renderer->DrawTextureRegion(texture, {0, 0, 32, 32}, {texturesOffset.x + 80, texturesOffset.y},
