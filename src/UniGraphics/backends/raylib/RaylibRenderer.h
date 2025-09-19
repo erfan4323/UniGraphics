@@ -30,6 +30,8 @@ namespace ugfx::raylib {
         void    UnloadTexture(Texture tex) override;
         void    DrawTexture(Texture tex, Vector2 pos, Color tint) override;
         void    DrawTextureRegion(Texture tex, Rectangle src, Vector2 dst, Color tint) override;
+        void    DrawTextureRegion(Texture texture, Rectangle src, Rectangle dest, Vector2 origin, float rotation,
+                                  Flip flip, Color tint = {255, 255, 255, 255}) override;
         void    DrawTextureEx(Texture tex, Vector2 pos, Vector2 origin, float rotation, float scale, Flip flip,
                               Color tint) override;
 

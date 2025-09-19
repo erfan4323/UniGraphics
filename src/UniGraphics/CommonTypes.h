@@ -38,7 +38,7 @@ namespace ugfx {
         int id = -1;  // universal ID for resource manager
     };
 
-    enum class Flip { None, Horizontal, Vertical };
+    enum class Flip { None, Horizontal, Vertical, Both };
 
     enum class Key {
         key_null = 0,  // Key: NULL, used for no key pressed

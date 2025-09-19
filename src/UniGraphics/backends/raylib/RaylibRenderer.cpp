@@ -105,6 +105,31 @@ namespace ugfx::raylib {
         ::DrawTextureRec(*texture, rSrc, rDst, ToRaylib(tint));
     }
 
+    void RaylibRenderer::DrawTextureRegion(Texture texture, Rectangle src, Rectangle dest, Vector2 origin,
+                                           float rotation, Flip flip, Color tint) {
+        if (texture.id == -1)
+            return;
+        ::Texture2D* tex = m_TextureManager.Get(texture.id);
+        if (!tex)
+            return;
+
+        ::Rectangle srcRect = {src.x, src.y, src.width, src.height};
+        ::Rectangle dstRect = {dest.x, dest.y, dest.width, dest.height};
+        ::Vector2   rOrigin = {origin.x, origin.y};
+
+        float finalScaleX = dest.width / src.width;
+        float finalScaleY = dest.height / src.height;
+        if (flip == Flip::Horizontal || flip == Flip::Both)
+            finalScaleX = -finalScaleX;
+        if (flip == Flip::Vertical || flip == Flip::Both)
+            finalScaleY = -finalScaleY;
+
+        dstRect.width  = src.width * std::abs(finalScaleX);
+        dstRect.height = src.height * std::abs(finalScaleY);
+
+        ::DrawTexturePro(*tex, srcRect, dstRect, rOrigin, rotation, ToRaylib(tint));
+    }
+
     void RaylibRenderer::DrawTextureEx(Texture tex, Vector2 pos, Vector2 origin, float rotation, float scale, Flip flip,
                                        Color tint) {
         if (tex.id == -1)

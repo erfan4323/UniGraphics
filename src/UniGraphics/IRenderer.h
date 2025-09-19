@@ -25,6 +25,8 @@ namespace ugfx {
         virtual void    UnloadTexture(Texture tex)                                               = 0;
         virtual void    DrawTexture(Texture tex, Vector2 pos, Color tint = {255, 255, 255, 255}) = 0;
         virtual void DrawTextureRegion(Texture tex, Rectangle src, Vector2 dst, Color tint = {255, 255, 255, 255}) = 0;
+        virtual void DrawTextureRegion(Texture texture, Rectangle src, Rectangle dest, Vector2 origin, float rotation,
+                                       Flip flip, Color tint = {255, 255, 255, 255})                               = 0;
         virtual void DrawTextureEx(Texture tex, Vector2 pos, Vector2 origin, float rotation, float scale, Flip flip,
                                    Color tint = {255, 255, 255, 255})                                              = 0;
     };

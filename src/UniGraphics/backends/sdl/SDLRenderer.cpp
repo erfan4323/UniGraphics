@@ -262,6 +262,39 @@ namespace ugfx::sdl {
         SDL_RenderCopyF(m_Renderer, realTex, &srcRect, &dstRect);
     }
 
+    void SDLRenderer::DrawTextureRegion(Texture texture, Rectangle src, Rectangle dest, Vector2 origin, float rotation,
+                                        Flip flip, Color tint) {
+        if (!m_Renderer || texture.id == -1)
+            return;
+        SDL_Texture* realTex = m_TextureManager.Get(texture.id);
+        if (!realTex)
+            return;
+
+        SDL_SetTextureColorMod(realTex, tint.r, tint.g, tint.b);
+        SDL_SetTextureAlphaMod(realTex, tint.a);
+
+        SDL_FRect  dst     = {dest.x, dest.y, dest.width, dest.height};
+        SDL_FPoint center  = {origin.x, origin.y};
+        SDL_Rect   srcRect = {static_cast<int>(src.x), static_cast<int>(src.y), static_cast<int>(src.width),
+                              static_cast<int>(src.height)};
+
+        SDL_RendererFlip sdlFlip = SDL_FLIP_NONE;
+        if (flip == Flip::Horizontal)
+            sdlFlip = SDL_FLIP_HORIZONTAL;
+        else if (flip == Flip::Vertical)
+            sdlFlip = SDL_FLIP_VERTICAL;
+
+        // Adjust position to align top-left corner
+        dst.x -= center.x;
+        dst.y -= center.y;
+        if (flip == Flip::Horizontal || flip == Flip::Both)
+            dst.x += center.x * 2.0f;
+        if (flip == Flip::Vertical || flip == Flip::Both)
+            dst.y += center.y * 2.0f;
+
+        SDL_RenderCopyExF(m_Renderer, realTex, &srcRect, &dst, rotation, &center, sdlFlip);
+    }
+
     void SDLRenderer::DrawTextureEx(Texture tex, Vector2 pos, Vector2 origin, float rotation, float scale, Flip flip,
                                     Color tint) {
         if (!m_Renderer || tex.id == 0)
