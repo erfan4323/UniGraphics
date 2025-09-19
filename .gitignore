@@ -63,3 +63,6 @@ nob.exe.old
 _build/
 src/Core/pch.h.gch
 src/ECS/pch.h.gch
+
+*.zip
+UniGraphics/

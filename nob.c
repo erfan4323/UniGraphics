@@ -115,7 +115,7 @@ bool build_main() {
 
     def_cmd();
     // cmd_append(&cmd, EXM_DIR "Live_Switch_Backend.cpp");
-    cmd_append(&cmd, EXM_DIR "test.cpp");
+    cmd_append(&cmd, EXM_DIR "Capabilities.cpp");
     for (size_t i = 0; i < ARRAY_SIZE(core_includes); i++)
         cmd_append(&cmd, "-I", core_includes[i]);
 
