@@ -30,6 +30,9 @@ namespace ugfx::sdl {
         Uint32      m_LastFrameTime   = 0;
         float       m_TargetFrameTime = 0.0f;
 
+        int m_CachedWidth  = 0;
+        int m_CachedHeight = 0;
+
         IInput* m_Input = nullptr;
     };
 

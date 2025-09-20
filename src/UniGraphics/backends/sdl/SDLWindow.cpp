@@ -15,6 +15,9 @@ namespace ugfx::sdl {
     }
 
     bool SDLWindow::Create(const std::string& title, int width, int height, WindowFlags flags) {
+        m_CachedWidth  = width;
+        m_CachedHeight = height;
+
         Uint32 sdlFlags = SDL_WINDOW_SHOWN;
 
         if (HasFlag(flags, WindowFlags::Fullscreen))
@@ -57,9 +60,7 @@ namespace ugfx::sdl {
     }
 
     std::pair<int, int> SDLWindow::GetSize() const {
-        int w, h;
-        SDL_GetWindowSize(m_Window, &w, &h);
-        return {w, h};
+        return {m_CachedWidth, m_CachedHeight};
     }
 
     bool SDLWindow::ShouldClose() const {
@@ -71,6 +72,11 @@ namespace ugfx::sdl {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 m_ShouldClose = true;
+
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                m_CachedWidth  = event.window.data1;
+                m_CachedHeight = event.window.data2;
+            }
 
             m_Input->ProcessEvents(&event);
         }
