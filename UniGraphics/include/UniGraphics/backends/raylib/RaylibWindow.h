@@ -20,6 +20,7 @@ namespace ugfx::raylib {
         void                SetTargetFPS(int fps) override;
         float               GetDeltaTime() const override;
         uint32_t            GetTicks() const override;
+        void*               GetHandle() const override;
     };
 
 }  // namespace ugfx::raylib

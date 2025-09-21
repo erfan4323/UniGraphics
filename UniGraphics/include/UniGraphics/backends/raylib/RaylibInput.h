@@ -11,6 +11,8 @@ namespace ugfx::raylib {
         RaylibInput()           = default;
         ~RaylibInput() override = default;
 
+        void* GetHandle() const override;
+
         void ProcessEvents(void* event) override;
 
         bool IsKeyDown(ugfx::Key key) const override;

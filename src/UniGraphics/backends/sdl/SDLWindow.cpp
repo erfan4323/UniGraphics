@@ -118,4 +118,8 @@ namespace ugfx::sdl {
         return SDL_GetTicks();
     }
 
+    void* SDLWindow::GetHandle() const {
+        return m_Window;
+    }
+
 }  // namespace ugfx::sdl

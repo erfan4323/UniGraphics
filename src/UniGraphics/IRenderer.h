@@ -49,6 +49,7 @@ namespace ugfx {
         virtual void EndDrawing()          = 0;
         virtual void Clear(Color color)    = 0;
         virtual void ReleaseAllResources() = 0;
+        virtual void* GetHandle() const     = 0;
     };
 
 }  // namespace ugfx

@@ -8,6 +8,8 @@ namespace ugfx::sdl {
        public:
         SDLBackend();
         ~SDLBackend() override;
+
+        BackendType GetBackendType() const override { return BackendType::SDL; }
     };
 
 }  // namespace ugfx::sdl

@@ -14,6 +14,8 @@ namespace ugfx::sdl {
         SDLInput();
         ~SDLInput() override;
 
+        void* GetHandle() const override;
+
         void ProcessEvents(void* event) override;
 
         bool IsKeyDown(ugfx::Key key) const override;
@@ -25,6 +27,8 @@ namespace ugfx::sdl {
         std::bitset<SDL_NUM_SCANCODES> m_CurrentDown;
         std::bitset<SDL_NUM_SCANCODES> m_PressedThisFrame;
         std::bitset<SDL_NUM_SCANCODES> m_ReleasedThisFrame;
+
+        SDL_Event m_LastEvent;
 
         SDL_Scancode MapKey(Key key) const;
     };

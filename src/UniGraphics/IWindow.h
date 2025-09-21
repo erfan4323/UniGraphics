@@ -31,6 +31,7 @@ namespace ugfx {
         virtual void                SetTargetFPS(int fps)                                                      = 0;
         virtual float               GetDeltaTime() const                                                       = 0;
         virtual uint32_t            GetTicks() const                                                           = 0;
+        virtual void*               GetHandle() const                                                          = 0;
     };
 
     inline WindowFlags operator|(WindowFlags a, WindowFlags b) {

@@ -1,6 +1,9 @@
 #include "RaylibInput.h"
 
 namespace ugfx::raylib {
+    void* RaylibInput::GetHandle() const {
+        return nullptr;
+    }
 
     void RaylibInput::ProcessEvents(void* event) {
     }

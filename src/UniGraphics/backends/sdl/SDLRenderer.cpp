@@ -76,6 +76,10 @@ namespace ugfx::sdl {
         std::cout << "SDLRenderer: All textures/fonts released.\n";
     }
 
+    void* SDLRenderer::GetHandle() const {
+        return m_Renderer;
+    }
+
     void SDLRenderer::DrawPixel(Vector2 pos, Color color) {
         if (!m_Renderer)
             return;

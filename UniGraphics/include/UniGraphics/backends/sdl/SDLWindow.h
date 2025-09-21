@@ -21,6 +21,7 @@ namespace ugfx::sdl {
         void                SetTargetFPS(int fps) override;
         float               GetDeltaTime() const override;
         uint32_t            GetTicks() const override;
+        void*               GetHandle() const override;
 
         SDL_Window* GetWindow() const { return m_Window; }
 

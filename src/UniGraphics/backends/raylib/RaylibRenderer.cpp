@@ -38,6 +38,10 @@ namespace ugfx::raylib {
         std::cout << "RaylibRenderer: All textures/fonts released.\n";
     }
 
+    void* RaylibRenderer::GetHandle() const {
+        return nullptr;
+    }
+
     void RaylibRenderer::DrawPixel(ugfx::Vector2 pos, ugfx::Color color) {
         ::DrawPixelV(ToRaylib(pos), ToRaylib(color));
     }

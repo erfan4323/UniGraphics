@@ -20,6 +20,7 @@ namespace ugfx::sdl {
         void EndDrawing() override;
         void Clear(Color color) override;
         void ReleaseAllResources() override;
+        void* GetHandle() const override;
 
         // IShapeRenderer
         void DrawPixel(Vector2 pos, Color color) override;

@@ -64,4 +64,8 @@ namespace ugfx::raylib {
         return static_cast<uint32_t>(GetTime() * 1000.0);
     }
 
+    void* RaylibWindow::GetHandle() const {
+        return nullptr;
+    }
+
 }  // namespace ugfx::raylib

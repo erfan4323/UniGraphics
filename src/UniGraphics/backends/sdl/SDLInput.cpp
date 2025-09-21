@@ -14,12 +14,17 @@ namespace ugfx::sdl {
 
     SDLInput::~SDLInput() = default;
 
+    void* SDLInput::GetHandle() const {
+        return static_cast<void*>(const_cast<SDL_Event*>(&m_LastEvent));
+    }
+
     void SDLInput::ProcessEvents(void* event) {
         // m_CurrentDown.reset();
         m_PressedThisFrame.reset();
         m_ReleasedThisFrame.reset();
 
         auto sdlEvent = static_cast<SDL_Event*>(event);
+        m_LastEvent   = *sdlEvent;
 
         switch (sdlEvent->type) {
             case SDL_KEYDOWN: {

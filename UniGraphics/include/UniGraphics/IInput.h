@@ -14,6 +14,7 @@ namespace ugfx {
         virtual bool IsKeyDown(Key key) const     = 0;
         virtual bool IsKeyReleased(Key key) const = 0;
         virtual bool IsKeyUp(Key key) const       = 0;
+        virtual void* GetHandle() const            = 0;
     };
 
 }  // namespace ugfx
