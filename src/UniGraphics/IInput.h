@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "CommonTypes.h"
 
 namespace ugfx {
@@ -8,7 +10,11 @@ namespace ugfx {
        public:
         virtual ~IInput() = default;
 
+        using EventCallback = std::function<void(void* event)>;
+
         virtual void ProcessEvents(void* event) = 0;
+        virtual void BeginFrame()                                  = 0;
+        virtual void RegisterEventCallback(EventCallback callback) = 0;
 
         virtual bool IsKeyPressed(Key key) const  = 0;
         virtual bool IsKeyDown(Key key) const     = 0;

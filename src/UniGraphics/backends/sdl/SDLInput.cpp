@@ -19,10 +19,6 @@ namespace ugfx::sdl {
     }
 
     void SDLInput::ProcessEvents(void* event) {
-        // m_CurrentDown.reset();
-        m_PressedThisFrame.reset();
-        m_ReleasedThisFrame.reset();
-
         auto sdlEvent = static_cast<SDL_Event*>(event);
         m_LastEvent   = *sdlEvent;
 
@@ -44,6 +40,20 @@ namespace ugfx::sdl {
             default:
                 break;
         }
+
+        for (const auto& cb : m_EventCallbacks) {
+            cb(event);
+        }
+    }
+
+    void SDLInput::BeginFrame() {
+        // m_CurrentDown.reset();
+        m_PressedThisFrame.reset();
+        m_ReleasedThisFrame.reset();
+    }
+
+    void SDLInput::RegisterEventCallback(EventCallback callback) {
+        m_EventCallbacks.push_back(callback);
     }
 
     bool SDLInput::IsKeyDown(Key key) const {

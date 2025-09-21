@@ -14,6 +14,8 @@ namespace ugfx::raylib {
         void* GetHandle() const override;
 
         void ProcessEvents(void* event) override;
+        void BeginFrame() override;
+        void RegisterEventCallback(EventCallback callback) override;
 
         bool IsKeyDown(ugfx::Key key) const override;
         bool IsKeyPressed(ugfx::Key key) const override;
