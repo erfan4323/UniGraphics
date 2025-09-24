@@ -114,8 +114,13 @@ bool build_main() {
                                "-lpthread"};
 
     def_cmd();
+
+    // For any demo, cooment and uncomment the lines below
+
     // cmd_append(&cmd, EXM_DIR "Live_Switch_Backend.cpp");
-    cmd_append(&cmd, EXM_DIR "Capabilities.cpp");
+    // cmd_append(&cmd, EXM_DIR "Capabilities.cpp");
+    cmd_append(&cmd, EXM_DIR "Multi_Window.cpp");
+
     for (size_t i = 0; i < ARRAY_SIZE(core_includes); i++)
         cmd_append(&cmd, "-I", core_includes[i]);
 
@@ -124,7 +129,8 @@ bool build_main() {
 
     cmd_append(&cmd, "-o", BUILD_DIR "Examples");
 
-    if (!cmd_run(&cmd)) return false;
+    if (!cmd_run(&cmd))
+        return false;
 
     return true;
 }
