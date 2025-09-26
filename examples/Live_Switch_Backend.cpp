@@ -1,3 +1,4 @@
+#include <filesystem>
 #include <iostream>
 #include <vector>
 
@@ -13,7 +14,7 @@ struct BackendContext {
 };
 
 bool InitBackend(BackendContext& ctx, BackendType type, const std::string& title, int width, int height,
-                 bool fullscreen) {
+                 WindowFlags flags) {
     ctx.backend = CreateBackend(type);
     if (!ctx.backend) {
         std::cerr << "Failed to create backend\n";
@@ -29,7 +30,7 @@ bool InitBackend(BackendContext& ctx, BackendType type, const std::string& title
         return false;
     }
 
-    if (!ctx.window->Create(title, width, height, fullscreen)) {
+    if (!ctx.window->Create(title, width, height, flags)) {
         std::cerr << "Failed to create window\n";
         return false;
     }
@@ -46,18 +47,23 @@ int main() {
     std::string windowTitle  = "Movable Rectangle Demo";
     int         windowWidth  = 800;
     int         windowHeight = 600;
-    bool        fullscreen   = false;
+    WindowFlags flags        = WindowFlags::AlwaysOnTop;
 
     // Rectangle
     Rectangle rect      = {100.0f, 100.0f, 50.0f, 50.0f};
     float     speed     = 250.0f;
     Color     rectColor = {255, 0, 0, 255};
-    Color     bgColor   = {235, 235, 235, 255};
+    Color     bgColor   = {21, 21, 21, 255};
 
     BackendContext ctx;
-    if (!InitBackend(ctx, backendTypes[currentBackendIndex], windowTitle, windowWidth, windowHeight, fullscreen)) {
+    if (!InitBackend(ctx, backendTypes[currentBackendIndex], windowTitle, windowWidth, windowHeight, flags)) {
         return -1;
     }
+
+    // Asset paths
+    std::string exeDir   = std::filesystem::current_path().string();
+    std::string fontPath = exeDir + "/assets/Lexend.ttf";
+    Font        font     = ctx.renderer->LoadFont(fontPath, 20);
 
     // Main loop
     while (!ctx.window->ShouldClose()) {
@@ -86,8 +92,7 @@ int main() {
             std::cout << "Switching to backend: "
                       << (backendTypes[currentBackendIndex] == BackendType::SDL ? "SDL" : "Raylib") << '\n';
 
-            if (!InitBackend(ctx, backendTypes[currentBackendIndex], windowTitle, windowWidth, windowHeight,
-                             fullscreen)) {
+            if (!InitBackend(ctx, backendTypes[currentBackendIndex], windowTitle, windowWidth, windowHeight, flags)) {
                 return -1;
             }
         }
@@ -105,6 +110,11 @@ int main() {
         ctx.renderer->BeginDrawing();
         ctx.renderer->Clear(bgColor);
         ctx.renderer->DrawRectangle(rect, rectColor);
+
+        std::string txt =
+            (backendTypes[currentBackendIndex] == BackendType::Raylib ? "Raylib" : "SDL") + std::string(" Backend");
+        ctx.renderer->DrawText(txt, {50, 50}, 20, {255, 255, 0, 255});
+
         ctx.renderer->EndDrawing();
     }
 
