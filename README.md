@@ -15,9 +15,8 @@ If you enjoyed this project, consider giving it a star — it really helps! ⭐
 
 ## Prerequisites
 
-- C++ compiler (C++17 or newer recommended)
+- MinGw gcc & g++ (for building the builder and the project)
 - [SDL2](https://www.libsdl.org/) and/or [Raylib](https://www.raylib.com/) development libraries installed
-- MinGw (for building the builder and the project)
 - (Optional) Python 3.x for running Python Library wrapper
 
 ## Building the Project
@@ -39,7 +38,7 @@ If you enjoyed this project, consider giving it a star — it really helps! ⭐
    ```bash
    ./nob
    ```
-   - Each time you change something in the codebase, just run this command. This is possible thanks to [Nob.h](https://github.com/tsoding/nob.h)
+   - Every time you make a change in the codebase, just run this command — made possible by [Nob.h](https://github.com/tsoding/nob.h)
 
 ## How to Use the Library
 
@@ -52,8 +51,6 @@ To use UniGraphics in your project:
 
 2. Create a graphics backend:
    ```cpp
-   #include "UniGraphics/IGraphicsBackend.h"
-
    std::unique_ptr<ugfx::IGraphicsBackend> backend = ugfx::CreateBackend(ugfx::BackendType::SDL);
    ```
 
@@ -71,27 +68,43 @@ To use UniGraphics in your project:
 Below is a minimal example using the SDL backend:
 
 ```cpp
-#include "UniGraphics/IGraphicsBackend.h"
-#include "UniGraphics/IInput.h"
-#include "UniGraphics/IWindow.h"
+#include "UniGraphics/UniGraphics.h"
 
 int main() {
-    // Create backend (SDL in this example)
+    // Create a backend (change BackendType to Raylib to switch)
     auto backend = ugfx::CreateBackend(ugfx::BackendType::SDL);
     auto* window = backend->GetWindow();
     auto* input = backend->GetInput();
+    auto* renderer = backend->GetRenderer();
 
-    window->Create("UniGraphics Example", 800, 600, ugfx::WindowFlags::Resizable);
+    window->Create("UniGraphics Showcase", 800, 600, ugfx::WindowFlags::Resizable);
 
-    // Main loop
+    ugfx::Vector2 rectPos{400, 300};
+    const float speed = 5.0f;
+
     while (!window->ShouldClose()) {
         window->PollEvents();
 
-        if (input->IsKeyPressed(ugfx::Key::escape)) {
-            break; // Exit on ESC key
-        }
+        // Move rectangle with arrow keys
+        if (input->IsKeyDown(ugfx::Key::right)) rectPos.x += speed;
+        if (input->IsKeyDown(ugfx::Key::left))  rectPos.x -= speed;
+        if (input->IsKeyDown(ugfx::Key::down))  rectPos.y += speed;
+        if (input->IsKeyDown(ugfx::Key::up))    rectPos.y -= speed;
 
-        // Rendering code here...
+        renderer->BeginDrawing();
+        renderer->Clear({30, 30, 40, 255}); // dark background
+
+        // Draw a moving rectangle
+        renderer->DrawRectangle({rectPos.x, rectPos.y, 80, 60}, {0, 200, 180, 255});
+
+        // Draw text
+        renderer->DrawText("Use arrow keys to move the box. Press ESC to quit.",
+                          {20, 20}, 20, {255, 255, 255, 255});
+
+        renderer->EndDrawing();
+
+        if (input->IsKeyPressed(ugfx::Key::escape))
+            break;
     }
 
     window->Shutdown();
