@@ -111,6 +111,7 @@ int main() {
     return 0;
 }
 ```
+*(Refer to `examples/` for better examples.)*
 
 ## API Guide
 
