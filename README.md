@@ -188,7 +188,9 @@ class IInput {
 
 ## Limitations
 I’ve developed this library as part of my game engine, but it’s still a work in progress. My goal is to eventually include full functionality.
+
 Currently, it only compiles on Windows due to MinGW, and doesn’t yet support macOS or Linux. I plan to add cross-platform support soon.
+
 For now, the project isn’t ready for contributions, but any help with making it cross-platform compatible would be appreciated.
 
 ## TODO
