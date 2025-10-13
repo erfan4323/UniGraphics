@@ -1,6 +1,6 @@
 # UniGraphics
 
-A cross-library abstraction for graphics libraries.
+A cross-library abstraction for graphic libraries.
 
 ## Overview
 
@@ -37,6 +37,7 @@ UniGraphics provides a unified interface for handling graphics windows, input, a
    ```bash
    ./nob
    ```
+   - Each time you change something in the codebase, just run this command. This is possible thanks to [Nob.h](https://github.com/tsoding/nob.h)
 
 ## How to Use the Library
 
@@ -104,8 +105,8 @@ int main() {
 class IGraphicsBackend {
  public:
     virtual ~IGraphicsBackend() = default;
-    virtual IWindow*   GetWindow() = 0;
-    virtual IInput*    GetInput() = 0;
+    virtual IWindow* GetWindow() = 0;
+    virtual IInput* GetInput() = 0;
     virtual IRenderer* GetRenderer() = 0;
     virtual BackendType GetBackendType() const = 0;
 };
@@ -117,16 +118,16 @@ class IGraphicsBackend {
 class IWindow {
  public:
     virtual ~IWindow() = default;
-    virtual bool                Create(const std::string& title, int width, int height, WindowFlags flags) = 0;
-    virtual void                SetTitle(const std::string& title) = 0;
+    virtual bool Create(const std::string& title, int width, int height, WindowFlags flags) = 0;
+    virtual void SetTitle(const std::string& title) = 0;
     virtual std::pair<int, int> GetSize() const = 0;
-    virtual bool                ShouldClose() const = 0;
-    virtual void                PollEvents() = 0;
-    virtual void                Shutdown() = 0;
-    virtual void                SetTargetFPS(int fps) = 0;
-    virtual float               GetDeltaTime() const = 0;
-    virtual uint32_t            GetTicks() const = 0;
-    virtual void*               GetHandle() const = 0;
+    virtual bool  ShouldClose() const = 0;
+    virtual void PollEvents() = 0;
+    virtual void Shutdown() = 0;
+    virtual void SetTargetFPS(int fps) = 0;
+    virtual float GetDeltaTime() const = 0;
+    virtual uint32_t GetTicks() const = 0;
+    virtual void* GetHandle() const = 0;
 };
 ```
 
@@ -169,3 +170,16 @@ class IInput {
 
 - For backend-specific details, see the files in [`src/UniGraphics/backends/`](https://github.com/erfan4323/UniGraphics/tree/main/src/UniGraphics/backends).
 - For advanced usage, explore the interfaces in [`src/UniGraphics/`](https://github.com/erfan4323/UniGraphics/tree/main/src/UniGraphics).
+
+## TODO
+[ ] Adding More Backends
+   - [ ] OpenGl  
+   - [ ] Software Renderer  
+   - [ ] Sokol  
+   - [ ] SFML
+
+[ ] Better Support and compatibility for fonts.
+
+[ ] Converting MinGw to Clang for enabling this project too run in other platforms.
+
+[ ] Closer functionality in all backends.
