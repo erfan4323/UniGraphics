@@ -11,6 +11,8 @@ UniGraphics provides a unified interface for handling graphics windows, input, a
 - Unified API for window management, input, and rendering
 - Easily switch between different graphics backends
 
+If you enjoyed this project, consider giving it a star — it really helps! ⭐
+
 ## Prerequisites
 
 - C++ compiler (C++17 or newer recommended)
@@ -170,6 +172,11 @@ class IInput {
 
 - For backend-specific details, see the files in [`src/UniGraphics/backends/`](https://github.com/erfan4323/UniGraphics/tree/main/src/UniGraphics/backends).
 - For advanced usage, explore the interfaces in [`src/UniGraphics/`](https://github.com/erfan4323/UniGraphics/tree/main/src/UniGraphics).
+
+## Limitations
+I’ve developed this library as part of my game engine, but it’s still a work in progress. My goal is to eventually include full functionality.
+Currently, it only compiles on Windows due to MinGW, and doesn’t yet support macOS or Linux. I plan to add cross-platform support soon.
+For now, the project isn’t ready for contributions, but any help with making it cross-platform compatible would be appreciated.
 
 ## TODO
 - [ ] Adding More Backends
