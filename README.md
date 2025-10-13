@@ -1,6 +1,6 @@
 # UniGraphics
 
-A cross-library abstraction for graphic libraries.
+An abstraction layer that unifies multiple graphics libraries.
 
 ## Overview
 
