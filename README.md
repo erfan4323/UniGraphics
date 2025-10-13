@@ -172,14 +172,11 @@ class IInput {
 - For advanced usage, explore the interfaces in [`src/UniGraphics/`](https://github.com/erfan4323/UniGraphics/tree/main/src/UniGraphics).
 
 ## TODO
-[ ] Adding More Backends
-   - [ ] OpenGl  
-   - [ ] Software Renderer  
-   - [ ] Sokol  
-   - [ ] SFML
-
-[ ] Better Support and compatibility for fonts.
-
-[ ] Converting MinGw to Clang for enabling this project too run in other platforms.
-
-[ ] Closer functionality in all backends.
+- [ ] Adding More Backends
+   - - [ ] OpenGl  
+   - - [ ] Software Renderer  
+   - - [ ] Sokol  
+   - - [ ] SFML
+- [ ] Better Support and compatibility for fonts.
+- [ ] Converting MinGw to Clang for enabling this project too run in other platforms.
+- [ ] Closer functionality in all backends.
