@@ -9,6 +9,10 @@
 #define SRC_DIR "src/"
 #define EXM_DIR "examples/"
 
+#define VCPKG_PATH "vcpkg_installed/x64-mingw-dynamic/"
+#define VCPKG_LIB_PATH VCPKG_PATH "lib"
+#define VCPKG_INC_PATH VCPKG_PATH "include"
+
 #define SDL_PATH "Vendor/SDL2-2.32.10/x86_64-w64-mingw32/"
 #define SDL_IMAGE_PATH "Vendor/SDL2_image-2.8.8/x86_64-w64-mingw32/"
 #define SDL_TTF_PATH "Vendor/SDL2_ttf-2.24.0/x86_64-w64-mingw32/"
@@ -58,7 +62,7 @@ bool build_UniGraphics() {
 
     const char *core_includes[] = {
         SRC_DIR "UniGraphics",
-        RAYLIB_PATH "include",
+        VCPKG_INC_PATH,
     };
 
     if (!compile_sources(&core_src, core_includes, ARRAY_SIZE(core_includes), OBJ_DIR "UniGraphics"))
@@ -89,33 +93,14 @@ bool build_imgui(void) {
 }
 
 bool build_main() {
-    const char *core_includes[] = {SDL_PATH "include", SDL_IMAGE_PATH "include", SDL_TTF_PATH "include",
-                                   RAYLIB_PATH "include", SRC_DIR};
+    const char *core_includes[] = {VCPKG_INC_PATH, SRC_DIR};
 
-    const char *core_libs[] = {"-L" BUILD_DIR,
-                               "-L" RAYLIB_PATH "lib",
-                               "-L" SDL_PATH "lib",
-                               "-L" SDL_IMAGE_PATH "lib",
-                               "-L" SDL_TTF_PATH "lib",
-                               "-lUniGraphics",
-                               "-lraylib",
-                               "-lgdi32",
-                               "-lopengl32",
-                               "-lshell32",
-                               "-luser32",
-                               "-lkernel32",
-                               "-lSDL2main",
-                               "-lSDL2",
-                               "-lSDL2_ttf",
-                               "-lSDL2_image",
-                               "-lwinmm",
-                               "-lmingw32",
-                               "-lDbghelp",
-                               "-lpthread"};
+    const char *core_libs[] = {"-L" BUILD_DIR, "-L" VCPKG_LIB_PATH, "-lUniGraphics", "-lraylib", "-lSDL2main",
+                               "-lSDL2",       "-lSDL2_ttf",        "-lSDL2_image"};
 
     def_cmd();
 
-    // For any demo, cooment and uncomment the lines below
+    // For any demo, coment and uncomment the lines below
 
     // cmd_append(&cmd, EXM_DIR "Live_Switch_Backend.cpp");
     // cmd_append(&cmd, EXM_DIR "Capabilities.cpp");

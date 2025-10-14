@@ -65,3 +65,5 @@ src/Core/pch.h.gch
 src/ECS/pch.h.gch
 
 *.zip
+
+vcpkg_installed/
