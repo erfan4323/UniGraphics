@@ -193,7 +193,7 @@ namespace ugfx::sdl {
 
         SDL_SetRenderDrawColor(m_Renderer, color.r, color.g, color.b, color.a);
 
-        auto edgeInterp = [](Point a, Point b, int y) {
+        auto edgeInterp = [](Point a, Point b, int y) -> int {
             if (a.y == b.y)
                 return a.x;
             return a.x + (b.x - a.x) * (y - a.y) / (b.y - a.y);

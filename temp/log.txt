@@ -1,0 +1,15 @@
+[INFO] directory `build/` already exists
+[INFO] directory `build/obj/` already exists
+[INFO] directory `build/obj/UniGraphics` already exists
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/raylib/RaylibBackend.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/RaylibBackend.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/raylib/RaylibInput.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/RaylibInput.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/raylib/RaylibRenderer.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/RaylibRenderer.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/raylib/RaylibWindow.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/RaylibWindow.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/sdl/SDLBackend.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/SDLBackend.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/sdl/SDLInput.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/SDLInput.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/sdl/SDLRenderer.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/SDLRenderer.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/backends/sdl/SDLWindow.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/SDLWindow.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/GraphicsBackend.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/GraphicsBackend.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 -c src/UniGraphics/IGraphicsBackend.cpp -I src/UniGraphics -I vcpkg_installed/x64-mingw-dynamic/include -o build/obj/UniGraphics/IGraphicsBackend.cpp.o
+[INFO] CMD: ar rcs build/libUniGraphics.a build/obj/UniGraphics/GraphicsBackend.cpp.o build/obj/UniGraphics/IGraphicsBackend.cpp.o build/obj/UniGraphics/RaylibBackend.cpp.o build/obj/UniGraphics/RaylibInput.cpp.o build/obj/UniGraphics/RaylibRenderer.cpp.o build/obj/UniGraphics/RaylibWindow.cpp.o build/obj/UniGraphics/SDLBackend.cpp.o build/obj/UniGraphics/SDLInput.cpp.o build/obj/UniGraphics/SDLRenderer.cpp.o build/obj/UniGraphics/SDLWindow.cpp.o
+[INFO] CMD: g++ -std=c++23 -Wno-template-body -g -O0 examples/Multi_Window.cpp -I vcpkg_installed/x64-mingw-dynamic/include -I src/ -Lbuild/ -Lvcpkg_installed/x64-mingw-dynamic/lib -lUniGraphics -lraylib -lSDL2main -lSDL2 -lSDL2_ttf -lSDL2_image -o build/Examples
