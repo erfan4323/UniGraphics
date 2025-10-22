@@ -62,4 +62,3 @@ _ = shutil.copy2(build_lib, lib_folder)
 print(f"Copied {build_lib.name} to {lib_folder}")
 
 print("Done!")
-_ = input("The Library created! Press Enter to exit...")
