@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
         if (!build_unigraphics_raylib()) return 1;
     }
 
-    if (!build_main(use_sdl)) return 1;
+    // if (!build_main(use_sdl)) return 1;
 
     return 0;
 }
