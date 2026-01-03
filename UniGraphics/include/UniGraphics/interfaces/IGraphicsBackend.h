@@ -16,6 +16,8 @@ namespace ugfx {
         virtual IWindow*   GetWindow()   = 0;
         virtual IInput*    GetInput()    = 0;
         virtual IRenderer* GetRenderer() = 0;
+
+        BackendType GetBackendType() = 0;
     };
 
     std::unique_ptr<IGraphicsBackend> CreateBackend();
