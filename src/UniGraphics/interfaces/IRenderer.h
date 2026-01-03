@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "CommonTypes.h"
+#include "../CommonTypes.h"
 
 namespace ugfx {
 
@@ -45,10 +45,10 @@ namespace ugfx {
        public:
         virtual ~IRenderer() = default;
 
-        virtual void BeginDrawing()        = 0;
-        virtual void EndDrawing()          = 0;
-        virtual void Clear(Color color)    = 0;
-        virtual void ReleaseAllResources() = 0;
+        virtual void  BeginDrawing()        = 0;
+        virtual void  EndDrawing()          = 0;
+        virtual void  Clear(Color color)    = 0;
+        virtual void  ReleaseAllResources() = 0;
         virtual void* GetHandle() const     = 0;
     };
 

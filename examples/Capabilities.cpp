@@ -6,34 +6,17 @@
 
 #include "UniGraphics/UniGraphics.h"
 
-using namespace ugfx;
-
 // ------------------- Helper Structs & Functions -------------------
 
 struct BackendContext {
-    std::unique_ptr<IGraphicsBackend> backend;
-    IWindow*                          window   = nullptr;
-    IInput*                           input    = nullptr;
-    IRenderer*                        renderer = nullptr;
+    std::unique_ptr<ugfx::IGraphicsBackend> backend;
+    ugfx::IWindow*                          window   = nullptr;
+    ugfx::IInput*                           input    = nullptr;
+    ugfx::IRenderer*                        renderer = nullptr;
 };
 
-std::string GetBackendName(BackendType backend) {
-    switch (backend) {
-        case BackendType::SDL:
-            return "SDL";
-        case BackendType::Raylib:
-            return "Raylib";
-        case BackendType::OpenGL:
-            return "OpenGL";
-        case BackendType::Software:
-            return "Software";
-    }
-    return "Unknown";
-}
-
-bool InitBackend(BackendContext& ctx, BackendType type, const std::string& title, int width, int height,
-                 WindowFlags flags) {
-    ctx.backend = CreateBackend(type);
+bool InitBackend(BackendContext& ctx, const std::string& title, int width, int height, ugfx::WindowFlags flags) {
+    ctx.backend = ugfx::CreateBackend();
     if (!ctx.backend) {
         std::cerr << "Failed to create backend\n";
         return false;
@@ -57,15 +40,15 @@ bool InitBackend(BackendContext& ctx, BackendType type, const std::string& title
     return true;
 }
 
-Texture LoadTextureSafe(IRenderer* renderer, const std::string& path) {
-    Texture tex = renderer->LoadTexture(path);
+ugfx::Texture LoadTextureSafe(ugfx::IRenderer* renderer, const std::string& path) {
+    ugfx::Texture tex = renderer->LoadTexture(path);
     if (tex.id == -1)
         std::cerr << "Warning: Failed to load texture: " << path << std::endl;
     return tex;
 }
 
-Font LoadFontSafe(IRenderer* renderer, const std::string& path, int size) {
-    Font font = renderer->LoadFont(path, size);
+ugfx::Font LoadFontSafe(ugfx::IRenderer* renderer, const std::string& path, int size) {
+    ugfx::Font font = renderer->LoadFont(path, size);
     if (font.id == -1)
         std::cerr << "Warning: Failed to load font: " << path << std::endl;
     return font;
@@ -75,8 +58,7 @@ Font LoadFontSafe(IRenderer* renderer, const std::string& path, int size) {
 
 int main() {
     // Backends (exclude OpenGL and Software as not implemented)
-    std::vector<BackendType> backends            = {BackendType::Raylib, BackendType::SDL};
-    size_t                   currentBackendIndex = 0;
+    size_t currentBackendIndex = 0;
 
     // Window
     const std::string windowTitle = "Renderer Demo";
@@ -84,9 +66,9 @@ int main() {
     const bool        fullscreen = false;
 
     // Demo objects
-    Rectangle rect     = {0.0f, 0.0f, 50.0f, 50.0f};  // Relative to shapesPanel
-    float     speed    = 250.0f;
-    int       fontSize = 20;
+    ugfx::Rectangle rect     = {0.0f, 0.0f, 50.0f, 50.0f};  // Relative to shapesPanel
+    float           speed    = 250.0f;
+    int             fontSize = 20;
 
     float totalTime = 0.0f;  // keeps track of absolute time
     float rotation  = 0.0f;
@@ -98,16 +80,16 @@ int main() {
 
     std::cout << texturePath << '\n';
 
-    WindowFlags flags = WindowFlags::Resizable;
+    ugfx::WindowFlags flags = ugfx::WindowFlags::Resizable;
 
     // Backend setup
     BackendContext ctx;
-    if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, flags))
+    if (!InitBackend(ctx, windowTitle, windowWidth, windowHeight, flags))
         return -1;
 
     // Load assets
-    Texture texture = LoadTextureSafe(ctx.renderer, texturePath);
-    Font    font    = LoadFontSafe(ctx.renderer, fontPath, fontSize);
+    ugfx::Texture texture = LoadTextureSafe(ctx.renderer, texturePath);
+    ugfx::Font    font    = LoadFontSafe(ctx.renderer, fontPath, fontSize);
 
     // Main loop
     while (!ctx.window->ShouldClose()) {
@@ -121,52 +103,30 @@ int main() {
         rotation = 90.0f * totalTime;  // rotation in degrees
 
         // --- Input ---
-        Vector2 velocity{0, 0};
-        if (ctx.input->IsKeyDown(Key::right))
+        ugfx::Vector2 velocity{0, 0};
+        if (ctx.input->IsKeyDown(ugfx::Key::right))
             velocity.x += speed;
-        if (ctx.input->IsKeyDown(Key::left))
+        if (ctx.input->IsKeyDown(ugfx::Key::left))
             velocity.x -= speed;
-        if (ctx.input->IsKeyDown(Key::up))
+        if (ctx.input->IsKeyDown(ugfx::Key::up))
             velocity.y -= speed;
-        if (ctx.input->IsKeyDown(Key::down))
+        if (ctx.input->IsKeyDown(ugfx::Key::down))
             velocity.y += speed;
-        if (ctx.input->IsKeyDown(Key::escape))
+        if (ctx.input->IsKeyDown(ugfx::Key::escape))
             break;
-        if (ctx.input->IsKeyPressed(Key::f))
+        if (ctx.input->IsKeyPressed(ugfx::Key::f))
             fontSize = std::min(fontSize + 2, 40);
-        if (ctx.input->IsKeyPressed(Key::g))
+        if (ctx.input->IsKeyPressed(ugfx::Key::g))
             fontSize = std::max(fontSize - 2, 10);
-
-        // --- Switch backend ---
-        if (ctx.input->IsKeyPressed(Key::tab)) {
-            currentBackendIndex = (currentBackendIndex + 1) % backends.size();
-
-            // Cleanup assets
-            if (texture.id != -1)
-                ctx.renderer->UnloadTexture(texture);
-            if (font.id != -1)
-                ctx.renderer->UnloadFont(font);
-            ctx.backend.reset();
-
-            std::cout << "------------------------------------------------------------------------------\n";
-            std::cout << "Switching to backend: " << GetBackendName(backends[currentBackendIndex]) << "\n";
-
-            if (!InitBackend(ctx, backends[currentBackendIndex], windowTitle, windowWidth, windowHeight, flags))
-                return -1;
-
-            // Reload assets
-            texture = LoadTextureSafe(ctx.renderer, texturePath);
-            font    = LoadFontSafe(ctx.renderer, fontPath, fontSize);
-        }
 
         // --- Update ---
         rect.x += velocity.x * dt;
         rect.y += velocity.y * dt;
 
         // Panels
-        Rectangle shapesPanel   = {10, 10, 380, 300};
-        Rectangle texturesPanel = {10, 320, 380, 300};
-        Rectangle infoPanel     = {400, 10, 650, 610};
+        ugfx::Rectangle shapesPanel   = {10, 10, 380, 300};
+        ugfx::Rectangle texturesPanel = {10, 320, 380, 300};
+        ugfx::Rectangle infoPanel     = {400, 10, 650, 610};
 
         // Clamp rectangle to shapesPanel
         rect.x = std::clamp(rect.x, 0.0f, (float) windowWidth);
@@ -176,13 +136,13 @@ int main() {
         ctx.renderer->BeginDrawing();
 
         // Background gradient
-        Color bgTop    = {30, 30, 60, 255};
-        Color bgBottom = {80, 50, 120, 255};
+        ugfx::Color bgTop    = {30, 30, 60, 255};
+        ugfx::Color bgBottom = {80, 50, 120, 255};
         for (int y = 0; y < windowHeight; ++y) {
-            float t = float(y) / windowHeight;
-            Color c = {static_cast<unsigned char>(bgTop.r * (1 - t) + bgBottom.r * t),
-                       static_cast<unsigned char>(bgTop.g * (1 - t) + bgBottom.g * t),
-                       static_cast<unsigned char>(bgTop.b * (1 - t) + bgBottom.b * t), 255};
+            float       t = float(y) / windowHeight;
+            ugfx::Color c = {static_cast<unsigned char>(bgTop.r * (1 - t) + bgBottom.r * t),
+                             static_cast<unsigned char>(bgTop.g * (1 - t) + bgBottom.g * t),
+                             static_cast<unsigned char>(bgTop.b * (1 - t) + bgBottom.b * t), 255};
             ctx.renderer->DrawLine({0, float(y)}, {float(windowWidth), float(y)}, 1.0f, c);
         }
 
@@ -192,9 +152,9 @@ int main() {
         ctx.renderer->DrawRectangleLines(infoPanel, 3.0f, {255, 255, 255, 180});
 
         // --- Shapes inside shapesPanel ---
-        Vector2   shapesOffset = {shapesPanel.x + 10, shapesPanel.y + 10};
-        Color     rectColor    = {static_cast<unsigned char>(128 + 127 * std::sin(totalTime * 2.0f)), 165, 0, 255};
-        Rectangle rectLocal    = {rect.x + shapesOffset.x, rect.y + shapesOffset.y, rect.width, rect.height};
+        ugfx::Vector2   shapesOffset = {shapesPanel.x + 10, shapesPanel.y + 10};
+        ugfx::Color     rectColor = {static_cast<unsigned char>(128 + 127 * std::sin(totalTime * 2.0f)), 165, 0, 255};
+        ugfx::Rectangle rectLocal = {rect.x + shapesOffset.x, rect.y + shapesOffset.y, rect.width, rect.height};
         ctx.renderer->DrawRectangle(rectLocal, rectColor);
         ctx.renderer->DrawPixel({rectLocal.x + 25, rectLocal.y + 25}, {0, 255, 255, 255});
         ctx.renderer->DrawLine({shapesOffset.x + 10, shapesOffset.y + 60}, {shapesOffset.x + 110, shapesOffset.y + 110},
@@ -207,20 +167,18 @@ int main() {
                                    {shapesOffset.x + 290, shapesOffset.y + 200}, {255, 255, 255, 255});
 
         // --- Textures inside texturesPanel ---
-        Vector2 texturesOffset = {texturesPanel.x + 50, texturesPanel.y + 50};
+        ugfx::Vector2 texturesOffset = {texturesPanel.x + 50, texturesPanel.y + 50};
         if (texture.id != -1) {
             ctx.renderer->DrawTexture(texture, {texturesOffset.x, texturesOffset.y}, {255, 255, 255, 255});
             ctx.renderer->DrawTextureRegion(texture, {0, 0, 32, 32}, {texturesOffset.x + 80, texturesOffset.y},
                                             {255, 255, 255, 255});
             ctx.renderer->DrawTextureEx(texture, {texturesOffset.x + 160, texturesOffset.y + 32}, {32, 32}, rotation,
-                                        1.2f, Flip::Horizontal, {200, 220, 255, 255});
+                                        1.2f, ugfx::Flip::Horizontal, {200, 220, 255, 255});
         }
 
         // --- Info / help text inside infoPanel ---
-        Vector2 infoOffset = {infoPanel.x + 10, infoPanel.y + 10};
+        ugfx::Vector2 infoOffset = {infoPanel.x + 10, infoPanel.y + 10};
         ctx.renderer->DrawText(font, "Renderer Demo", {infoOffset.x, infoOffset.y}, {255, 180, 80, 255});
-        ctx.renderer->DrawText("Backend: " + GetBackendName(backends[currentBackendIndex]),
-                               {infoOffset.x, infoOffset.y + 40}, fontSize, {150, 200, 255, 255});
         ctx.renderer->DrawText("Use Arrow Keys to Move Shapes", {infoOffset.x, infoOffset.y + 80}, fontSize,
                                {180, 255, 180, 255});
         ctx.renderer->DrawText("Press F/G to Change Font Size", {infoOffset.x, infoOffset.y + 120}, fontSize,

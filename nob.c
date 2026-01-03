@@ -1,29 +1,31 @@
 #define NOB_IMPLEMENTATION
 #define NOB_STRIP_PREFIX
 #include "nob.h"
-
 #include "nob_util.c"
 
+// -------------------- Paths --------------------
 #define BUILD_DIR "build/"
 #define OBJ_DIR BUILD_DIR "obj/"
 #define SRC_DIR "src/"
 #define EXM_DIR "examples/"
 
-#define VCPKG_PATH "vcpkg_installed/x64-mingw-dynamic/"
-#define VCPKG_LIB_PATH VCPKG_PATH "lib"
-#define VCPKG_INC_PATH VCPKG_PATH "include"
+#define VCPKG_PATH       "vcpkg_installed/x64-mingw-dynamic/"
+#define VCPKG_LIB_PATH   VCPKG_PATH "lib"
+#define VCPKG_INC_PATH   VCPKG_PATH "include"
 
-#define SDL_PATH "Vendor/SDL2-2.32.10/x86_64-w64-mingw32/"
-#define SDL_IMAGE_PATH "Vendor/SDL2_image-2.8.8/x86_64-w64-mingw32/"
-#define SDL_TTF_PATH "Vendor/SDL2_ttf-2.24.0/x86_64-w64-mingw32/"
-#define IMGUI_PATH "Vendor/imgui/"
-#define RAYLIB_PATH "Vendor/raylib-5.5/"
+#define SDL_PATH         "Vendor/SDL2-2.32.10/x86_64-w64-mingw32/"
+#define SDL_IMAGE_PATH   "Vendor/SDL2_image-2.8.8/x86_64-w64-mingw32/"
+#define SDL_TTF_PATH     "Vendor/SDL2_ttf-2.24.0/x86_64-w64-mingw32/"
+#define IMGUI_PATH       "Vendor/imgui/"
+#define RAYLIB_PATH      "Vendor/raylib-5.5/"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 
+// -------------------- Globals --------------------
 Cmd cmd = {0};
 Procs procs = {0};
 
+// -------------------- Command Helper --------------------
 void def_cmd() {
     cmd_append(&cmd, "g++");
     cmd_append(&cmd, "-std=c++23");
@@ -32,8 +34,8 @@ void def_cmd() {
     // cmd_append(&cmd, "-Wall", "-Wextra");
 }
 
-static bool compile_sources(StrVec *sources, const char **includes,
-                            size_t include_count, const char *obj_subdir) {
+// -------------------- Compile Helper --------------------
+static bool compile_sources(StrVec *sources, const char **includes, size_t include_count, const char *obj_subdir) {
     if (!mkdir_if_not_exists(obj_subdir)) {
         nob_log(ERROR, "Failed to create build directory: %s\n", obj_subdir);
         return false;
@@ -41,106 +43,117 @@ static bool compile_sources(StrVec *sources, const char **includes,
 
     da_foreach(char *, src, sources) {
         def_cmd();
-        cmd_append(&cmd, "-c");
-        cmd_append(&cmd, *src);
+        cmd_append(&cmd, "-c", *src);
 
         for (size_t i = 0; i < include_count; i++)
             cmd_append(&cmd, "-I", includes[i]);
 
-        cmd_append(&cmd, "-o",
-                   temp_sprintf("%s/%s.o", obj_subdir, basename_only(*src)));
+        cmd_append(&cmd, "-o", temp_sprintf("%s/%s.o", obj_subdir, basename_only(*src)));
 
-        if (!cmd_run(&cmd, .async = &procs)) return false;
+        if (!cmd_run(&cmd, .async = &procs))
+            return false;
     }
 
     return procs_flush(&procs);
 }
 
-bool build_UniGraphics() {
-    StrVec core_src = {0};
-    collect_files_by_pattern(SRC_DIR "UniGraphics/**/*.cpp", &core_src);
+// -------------------- Build Functions --------------------
+bool build_UniGraphics_Core() {
+    StrVec src = {0};
+    collect_files_by_pattern(SRC_DIR "UniGraphics/core/**/*.cpp", &src);
 
-    const char *core_includes[] = {
-        SRC_DIR "UniGraphics",
-        VCPKG_INC_PATH,
+    const char *includes[] = {
+        SRC_DIR "UniGraphics/interfaces",
+        SRC_DIR "UniGraphics/"
     };
 
-    if (!compile_sources(&core_src, core_includes, ARRAY_SIZE(core_includes), OBJ_DIR "UniGraphics"))
+    if (!compile_sources(&src, includes, ARRAY_SIZE(includes), OBJ_DIR "UniGraphicsCore"))
         return false;
 
-    if (!archive_to_lib(OBJ_DIR "UniGraphics/", BUILD_DIR "libUniGraphics.a"))
-        return false;
-
-    return true;
+    return archive_to_lib(OBJ_DIR "UniGraphicsCore/", BUILD_DIR "libUniGraphicsCore.a");
 }
 
-bool build_imgui(void) {
-    StrVec imgui_src = {0};
-    collect_files_by_pattern(IMGUI_PATH "*.cpp", &imgui_src);
-    da_append(&imgui_src, IMGUI_PATH "backends/imgui_impl_sdl2.cpp");
-    da_append(&imgui_src, IMGUI_PATH "backends/imgui_impl_sdlrenderer2.cpp");
+bool build_unigraphics_backend(const char *backend_name, const char *backend_path, const char *obj_dir) {
+    StrVec src = {0};
+    collect_files_by_pattern(SRC_DIR "UniGraphics/core/**/*.cpp", &src);
+    collect_files_by_pattern(backend_path, &src);  // backend-specific sources
 
-    const char *includes[] = {SDL_PATH "include/SDL2/", IMGUI_PATH};
+    const char *includes[] = {
+        SRC_DIR "UniGraphics/interfaces",
+        SRC_DIR "UniGraphics/",
+        backend_name
+    };
 
-    if (!compile_sources(&imgui_src, includes, ARRAY_SIZE(includes),
-                         OBJ_DIR "imgui"))
+    if (!compile_sources(&src, includes, ARRAY_SIZE(includes), obj_dir))
         return false;
 
-    if (!archive_to_lib(OBJ_DIR "imgui/", BUILD_DIR "libimgui.a")) return false;
-
-    nob_log(INFO, "Created ImGui library!");
-    return true;
+    return archive_to_lib(obj_dir, temp_sprintf(BUILD_DIR "libUniGraphics%s.a", backend_name));
 }
 
-bool build_main() {
+bool build_unigraphics_sdl() {
+    return build_unigraphics_backend("SDL", SRC_DIR "UniGraphics/backends/sdl/**/*.cpp", OBJ_DIR "UniGraphicsSDL");
+}
+
+bool build_unigraphics_raylib() {
+    return build_unigraphics_backend("Raylib", SRC_DIR "UniGraphics/backends/raylib/**/*.cpp", OBJ_DIR "UniGraphicsRaylib");
+}
+
+// -------------------- Main Build --------------------
+bool build_main(bool use_sdl) {
     const char *core_includes[] = {VCPKG_INC_PATH, SRC_DIR};
 
-    const char *core_libs[] = {"-L" BUILD_DIR, "-L" VCPKG_LIB_PATH, "-lUniGraphics", "-lraylib", "-lSDL2main",
-                               "-lSDL2",       "-lSDL2_ttf",        "-lSDL2_image"};
+    const char *sdl_libs[] = {
+        "-L" BUILD_DIR,
+        "-L" VCPKG_LIB_PATH,
+        "-lUniGraphicsSDL",
+        "-lSDL2main", "-lSDL2", "-lSDL2_ttf", "-lSDL2_image", "-lraylib"  // optional raylib
+    };
+
+    const char *raylib_libs[] = {
+        "-L" BUILD_DIR,
+        "-L" VCPKG_LIB_PATH,
+        "-lUniGraphicsRaylib",
+        "-lraylib", "-lopengl32", "-lgdi32", "-lwinmm", "-lSDL2main"
+    };
 
     def_cmd();
-
-    // For any demo, coment and uncomment the lines below
-
-    // cmd_append(&cmd, EXM_DIR "Live_Switch_Backend.cpp");
-    // cmd_append(&cmd, EXM_DIR "Capabilities.cpp");
-    cmd_append(&cmd, EXM_DIR "Multi_Window.cpp");
+    cmd_append(&cmd, EXM_DIR "Capabilities.cpp");
 
     for (size_t i = 0; i < ARRAY_SIZE(core_includes); i++)
         cmd_append(&cmd, "-I", core_includes[i]);
 
-    for (size_t i = 0; i < ARRAY_SIZE(core_libs); i++)
-        cmd_append(&cmd, core_libs[i]);
+    if (use_sdl) {
+        for (size_t i = 0; i < ARRAY_SIZE(sdl_libs); i++)
+            cmd_append(&cmd, sdl_libs[i]);
+    } else {
+        for (size_t i = 0; i < ARRAY_SIZE(raylib_libs); i++)
+            cmd_append(&cmd, raylib_libs[i]);
+    }
 
     cmd_append(&cmd, "-o", BUILD_DIR "Examples");
 
-    if (!cmd_run(&cmd))
-        return false;
-
-    return true;
+    return cmd_run(&cmd);
 }
 
+// -------------------- Entry Point --------------------
 int main(int argc, char **argv) {
     NOB_GO_REBUILD_URSELF_PLUS(argc, argv, "nob_util.c");
 
-    if (!mkdir_if_not_exists(BUILD_DIR)) {
+    if (!mkdir_if_not_exists(BUILD_DIR) || !mkdir_if_not_exists(OBJ_DIR)) {
         nob_log(ERROR, "Failed to create build directory\n");
         return 1;
     }
 
-    if (!mkdir_if_not_exists(OBJ_DIR)) {
-        nob_log(ERROR, "Failed to create build directory\n");
-        return 1;
+    if (!build_UniGraphics_Core()) return 1;
+
+    bool use_sdl = false;
+    if (use_sdl) {
+        if (!build_unigraphics_sdl()) return 1;
+    } else {
+        if (!build_unigraphics_raylib()) return 1;
     }
 
-    // if (needs_rebuild1(BUILD_DIR "libimgui.a", IMGUI_PATH "imgui.h")) {
-    //     if (!build_imgui()) return 1;
-    // }
-
-    if (!build_UniGraphics())
-        return 1;
-
-    if (!build_main()) return 1;
+    if (!build_main(use_sdl)) return 1;
 
     return 0;
 }

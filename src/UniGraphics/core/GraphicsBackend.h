@@ -1,8 +1,10 @@
 #pragma once
 
+#include <raylib.h>
+
 #include <memory>
 
-#include "IGraphicsBackend.h"
+#include "../interfaces/IGraphicsBackend.h"
 
 namespace ugfx {
 
