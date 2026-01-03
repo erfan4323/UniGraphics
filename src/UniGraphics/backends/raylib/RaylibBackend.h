@@ -8,6 +8,8 @@ namespace ugfx::raylib {
        public:
         RaylibBackend();
         ~RaylibBackend() override;
+
+        BackendType GetBackendType() { return BackendType::Raylib; }
     };
 
 }  // namespace ugfx::raylib

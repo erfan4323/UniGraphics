@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CommonTypes.h"
 #include "UniGraphics.h"
 
 namespace ugfx::sdl {
@@ -8,6 +9,8 @@ namespace ugfx::sdl {
        public:
         SDLBackend();
         ~SDLBackend() override;
+
+        BackendType GetBackendType() override { return BackendType::SDL; }
     };
 
 }  // namespace ugfx::sdl

@@ -157,4 +157,5 @@ namespace ugfx {
         volume_down = 25   // Key: Android volume down button
     };
 
+    enum class BackendType { SDL, Raylib };
 }  // namespace ugfx
