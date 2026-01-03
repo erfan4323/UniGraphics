@@ -53,12 +53,20 @@ for path in dest.rglob("*"):
         print(f"Removing non-header file {path}")
         path.unlink()
 
-# Step 4: Copy library file
-if not build_lib.exists():
-    _ = input(f"{build_lib} not found! Press Enter to exit...")
+# Step 4: Copy all .a library files
+build_lib_folder = root / "build"
+lib_folder.mkdir(parents=True, exist_ok=True)
+
+a_files = list(build_lib_folder.glob("*.a"))
+if not a_files:
+    _ = input(f"No .a files found in {build_lib_folder}! Press Enter to exit...")
     exit(1)
 
-_ = shutil.copy2(build_lib, lib_folder)
-print(f"Copied {build_lib.name} to {lib_folder}")
+for lib_file in a_files:
+    print(f"Copying {lib_file.name} to {lib_folder}")
+    shutil.copy2(lib_file, lib_folder)
+
+print("All .a files copied successfully!")
+
 
 print("Done!")
