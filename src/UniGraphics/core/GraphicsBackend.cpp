@@ -1,5 +1,7 @@
 #include "GraphicsBackend.h"
 
+#include <stdlib.h>
+
 #ifdef USE_SDL
 #include "../backends/sdl/SDLBackend.h"
 #elif defined(USE_RAYLIB)
@@ -21,7 +23,7 @@ namespace ugfx {
 #elif defined(USE_RAYLIB)
         return std::make_unique<raylib::RaylibBackend>();
 #else
-        static_assert(false, "No backend defined! Define USE_SDL or USE_RAYLIB.");
+#error "No backend defined! Define USE_SDL or USE_RAYLIB."
         return nullptr;
 #endif
     }

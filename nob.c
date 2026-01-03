@@ -45,14 +45,14 @@ static bool compile_sources(StrVec *sources, const char **includes, size_t inclu
         def_cmd();
         cmd_append(&cmd, "-c", *src);
 
-        for (size_t i = 0; i < include_count; i++)
-            cmd_append(&cmd, "-I", includes[i]);
-
         if (false) {
             cmd_append(&cmd, "-DUSE_SDL");
         } else {
             cmd_append(&cmd, "-DUSE_RAYLIB");
         }
+
+        for (size_t i = 0; i < include_count; i++)
+            cmd_append(&cmd, "-I", includes[i]);
 
         cmd_append(&cmd, "-o", temp_sprintf("%s/%s.o", obj_subdir, basename_only(*src)));
 
@@ -64,21 +64,6 @@ static bool compile_sources(StrVec *sources, const char **includes, size_t inclu
 }
 
 // -------------------- Build Functions --------------------
-bool build_UniGraphics_Core() {
-    StrVec src = {0};
-    collect_files_by_pattern(SRC_DIR "UniGraphics/core/**/*.cpp", &src);
-
-    const char *includes[] = {
-        SRC_DIR "UniGraphics/interfaces",
-        SRC_DIR "UniGraphics/"
-    };
-
-    if (!compile_sources(&src, includes, ARRAY_SIZE(includes), OBJ_DIR "UniGraphicsCore"))
-        return false;
-
-    return archive_to_lib(OBJ_DIR "UniGraphicsCore/", BUILD_DIR "libUniGraphicsCore.a");
-}
-
 bool build_unigraphics_backend(const char *backend_name, const char *backend_path, const char *obj_dir) {
     StrVec src = {0};
     collect_files_by_pattern(SRC_DIR "UniGraphics/core/**/*.cpp", &src);
@@ -151,8 +136,6 @@ int main(int argc, char **argv) {
         nob_log(ERROR, "Failed to create build directory\n");
         return 1;
     }
-
-    if (!build_UniGraphics_Core()) return 1;
 
     bool use_sdl = false;
     if (use_sdl) {
