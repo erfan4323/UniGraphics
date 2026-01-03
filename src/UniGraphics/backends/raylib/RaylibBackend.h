@@ -9,7 +9,7 @@ namespace ugfx::raylib {
         RaylibBackend();
         ~RaylibBackend() override;
 
-        BackendType GetBackendType() { return BackendType::Raylib; }
+        BackendType GetBackendType() override { return BackendType::Raylib; }
     };
 
 }  // namespace ugfx::raylib

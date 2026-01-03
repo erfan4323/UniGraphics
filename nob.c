@@ -48,6 +48,12 @@ static bool compile_sources(StrVec *sources, const char **includes, size_t inclu
         for (size_t i = 0; i < include_count; i++)
             cmd_append(&cmd, "-I", includes[i]);
 
+        if (false) {
+            cmd_append(&cmd, "-DUSE_SDL");
+        } else {
+            cmd_append(&cmd, "-DUSE_RAYLIB");
+        }
+
         cmd_append(&cmd, "-o", temp_sprintf("%s/%s.o", obj_subdir, basename_only(*src)));
 
         if (!cmd_run(&cmd, .async = &procs))
@@ -106,14 +112,14 @@ bool build_main(bool use_sdl) {
         "-L" BUILD_DIR,
         "-L" VCPKG_LIB_PATH,
         "-lUniGraphicsSDL",
-        "-lSDL2main", "-lSDL2", "-lSDL2_ttf", "-lSDL2_image", "-lraylib"  // optional raylib
+        "-lSDL2main", "-lSDL2", "-lSDL2_ttf", "-lSDL2_image"
     };
 
     const char *raylib_libs[] = {
         "-L" BUILD_DIR,
         "-L" VCPKG_LIB_PATH,
         "-lUniGraphicsRaylib",
-        "-lraylib", "-lopengl32", "-lgdi32", "-lwinmm", "-lSDL2main"
+        "-lraylib", "-lopengl32", "-lgdi32", "-lwinmm"
     };
 
     def_cmd();
@@ -123,9 +129,11 @@ bool build_main(bool use_sdl) {
         cmd_append(&cmd, "-I", core_includes[i]);
 
     if (use_sdl) {
+        cmd_append(&cmd, "-DUSE_SDL");
         for (size_t i = 0; i < ARRAY_SIZE(sdl_libs); i++)
             cmd_append(&cmd, sdl_libs[i]);
     } else {
+        cmd_append(&cmd, "-DUSE_RAYLIB");
         for (size_t i = 0; i < ARRAY_SIZE(raylib_libs); i++)
             cmd_append(&cmd, raylib_libs[i]);
     }
